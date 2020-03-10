@@ -4,10 +4,20 @@
 	"description": "Helper for viewing the waseda grade report",
 	"manifest_version": 2,
 
+	"permissions": ["declarativeContent"],
+
 	"background": {
 		"scripts": ["background.js"],
 		"persistent": false
 	},
+
+	"content_scripts": [{
+		"js": ["content.js"],
+    "matches": ["https://coursereg.waseda.jp/*"],
+    "run_at": "document_idle"
+	}],
+
+  "web_accessible_resources": ["doSubmit.js"],
 
 	"page_action": {
 		"default_title": "Waseda Lens",
