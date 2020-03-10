@@ -1,0 +1,16 @@
+{
+	"name": "Waseda Lens",
+	"version": "1.0",
+	"description": "Helper for viewing the waseda grade report",
+	"manifest_version": 2,
+
+	"background": {
+		"scripts": ["background.js"],
+		"persistent": false
+	},
+
+	"page_action": {
+		"default_title": "Waseda Lens",
+		"default_popup": "popup.html"	
+	}
+}
