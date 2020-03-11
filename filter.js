@@ -77,13 +77,10 @@ var filterCourse = ( rows, course ) => {
 
 // filter by the value of the nth-child 
 var filterBy = ( rows, index, value ) => {
-  rows.forEach(r => console.log([...r.children][index].innerText))
-  console.log(value)
   return rows.filter(r => [...r.children][index].innerText.includes(value))
 }
 
 var filter = ( ...conditions ) => {
-  console.log(conditions)
   var results = [...document.querySelectorAll('tr.operationboxf')]
   var skip = ["All", "全て"]
   var course = conditions[0]
@@ -92,18 +89,39 @@ var filter = ( ...conditions ) => {
   }
   // start at 1 to match index of columns
   for ( var i = 1; i < conditions.length; i++ ) {
-    console.log(conditions[i])
     if ( skip.includes(conditions[i]) ) { continue }
-    console.log(conditions)
     results = filterBy(results, i, conditions[i])
   }
   return results
 }
 
+var renderStats = ( table, results ) => {
+  var gradePoints = []
+  for ( var i = 0; i < results.length; i++ ) {
+    var val = parseInt([...results[i].children].pop().innerText)
+    if ( isNaN(val) ) {
+      continue
+    } else {
+      gradePoints.push(val)
+    }
+  }
+  var gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length
+  table.insertAdjacentHTML('beforeend', `
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>GPA: </td>
+      <td>${gpa.toFixed(2)}</td>
+    <tr>
+  `)
+}
+
 var renderResults = () => {
-  var resTable = document.querySelector('#lens #results')
-  if ( resTable.children.childElementCount !== 0 ) {
-    resTable.textContent = ''
+  var tableElement = document.querySelector('#lens #results')
+  if ( tableElement.children.childElementCount !== 0 ) {
+    tableElement.textContent = ''
   }
   var conditions = [...document.querySelectorAll('.condition')].map(f => f.value)
   var results = filter(...conditions)
@@ -113,8 +131,9 @@ var renderResults = () => {
   results.forEach(r => {
       var rowEl = r.cloneNode(true)
       rowEl.classList.remove('operationboxf')
-      resTable.insertAdjacentElement('beforeend', rowEl)
+      tableElement.insertAdjacentElement('beforeend', rowEl)
   })
+  renderStats(tableElement, results)
 }
 
 document.querySelector('#filter').onchange = (e) => {
