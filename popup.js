@@ -1,3 +1,6 @@
+// TODO: https://developer.chrome.com/extensions/messaging
+// use long term connection
+
 let activate = document.getElementById('activate');
 activate.onclick = function(element) {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
