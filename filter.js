@@ -164,7 +164,7 @@ var renderResults = () => {
     var conditions = [...document.querySelectorAll('.condition')].map(f => f.value)
     var results = filter(...conditions)
     if ( onlyCategoryNames(results)) {
-      alert(NORES_MSG)
+      tableElement.insertAdjacentHTML('beforeend', `<tr><td>${NORES_MSG}</td></tr>`)
     } else {
       results.forEach(r => {
         var rowEl = r.cloneNode(true)
