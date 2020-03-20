@@ -129,19 +129,6 @@ var renderStats = ( table, results ) => {
   `)
 }
 
-var activate = ( on=true ) => {
-  var status = document.querySelectorAll('form[name="FRM_TANI"] table')[1]
-  var detail = document.querySelector('form[name="FRM_DETAIL"] table')
-  if ( on ) {
-    [status, detail].forEach(e => e.setAttribute("style", "display: none"))
-  } else {
-    [status, detail].forEach(e => e.setAttribute("style", "display: inline-block"))
-    status.setAttribute("style", "display: inline-block")
-    detail.setAttribute("style", "display: block")
-  }
-}
-
-
 var renderResults = () => {
   document.querySelector('#filter').onchange = (e) => {
     var tableElement = document.querySelector('#lens #results')
@@ -154,25 +141,30 @@ var renderResults = () => {
       alert(NORES_MSG)
     }
     results.forEach(r => {
-        var rowEl = r.cloneNode(true)
-        rowEl.classList.remove('operationboxf')
-        tableElement.insertAdjacentElement('beforeend', rowEl)
+      var rowEl = r.cloneNode(true)
+      rowEl.classList.remove('operationboxf')
+      tableElement.insertAdjacentElement('beforeend', rowEl)
     })
     renderStats(tableElement, results)
   }
 }
 
-var deactivate = () => {
-  chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-      if (request.deactivate == true) {
-        activate(false)
-        document.querySelector('#lens').remove()
-      }
-    });
+var activate = ( on=true ) => {
+  var status = document.querySelectorAll('form[name="FRM_TANI"] table')[1]
+  var detail = document.querySelector('form[name="FRM_DETAIL"] table')
+  if ( on ) {
+    [status, detail].forEach(e => e.setAttribute("style", "display: none"))
+    displayTable()
+    renderResults()
+  } else {
+    status.setAttribute("style", "display: inline-block")
+    detail.setAttribute("style", "display: block")
+    document.querySelector('#lens').remove()
+  }
 }
 
-activate()
-displayTable()
-renderResults()
-deactivate()
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    activate(request.activate)
+  }
+);

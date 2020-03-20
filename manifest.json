@@ -11,11 +11,18 @@
 		"persistent": false
 	},
 
-	"content_scripts": [{
-		"js": ["toTab.js"],
-    "matches": ["https://coursereg.waseda.jp/*"],
-    "run_at": "document_idle"
-  }],
+	"content_scripts": [
+		{
+			"js": ["toTab.js"],
+			"matches": ["https://coursereg.waseda.jp/*"],
+			"run_at": "document_idle"
+		},
+		{
+			"js": ["filter.js"],
+			"matches": ["https://gradereport-ty.waseda.jp/*"],
+			"run_at": "document_idle"
+		}
+	],
 
   "web_accessible_resources": ["filter.js"],
 
