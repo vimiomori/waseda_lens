@@ -1,23 +1,41 @@
-html, body {
-    height: 200px;
-    width: 200px;
+* {
+    margin: 0;
+    padding: 0;
 }
 
-div {
+html, body {
+    height: 150px;
+    width: 200px;
+    background-color: #9b2121;
+    background-image: linear-gradient(141deg, #ca4a4a 0%, #9b2121 51%, #851f1f 75%)
+}
+
+.container {
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: center;
 }
 
-h1 {
+.title{
+    font-family: 'Baloo Da 2';
+    font-size: 1.5rem;
     text-align: center;
+    line-height: 4rem;
+    color: white;
+    position: relative;
+    top: 1rem;
 }
+
+i {
+    font-size: 2rem;
+}
+
 /* The switch - the box around the slider */
 .switch {
     position: relative;
-    margin: auto;
+    margin: 20px auto auto auto;
     display: inline-block;
     width: 100px;
     height: 34px;
@@ -38,10 +56,11 @@ h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: #f99393;
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 34px;
+    box-shadow: 1px 2px 4px 0px #3e3c3c;
 }
 
 .slider:before {
@@ -55,14 +74,15 @@ h1 {
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 50%;
+    box-shadow: 1px 1px 2px 1px #524747;
 }
 
 input:checked + .slider {
-    background-color: #2196F3;
+    background-color: #3ec9c9;
 }
 
 input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    box-shadow: 0 0 1px #3ec9c9;
 }
 
 input:checked + .slider:before {
