@@ -191,8 +191,9 @@ var activate = ( on=true ) => {
   }
 }
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    activate(request.activate)
-  }
-);
+var port = chrome.runtime.onConnect.addListener(function(port){
+  console.assert(port.name === "activate")
+  port.onMessage.addListener(function(msg) {
+    activate(msg.activate)
+  })
+})
