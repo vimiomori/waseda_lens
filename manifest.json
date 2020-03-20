@@ -19,6 +19,7 @@
 		},
 		{
 			"js": ["filter.js"],
+			"css": ["filter.css"],
 			"matches": ["https://gradereport-ty.waseda.jp/*"],
 			"run_at": "document_idle"
 		}
