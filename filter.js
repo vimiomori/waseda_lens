@@ -1,7 +1,10 @@
 'use strict'
 
 var JAPANESE = document.querySelector('title').innerText.replace('\n', '') === '成績照会' ? true : false
-var COURSE_SYMBOL = JAPANESE ? '◎' : '['
+var SUBJECT_SYMBOL = JAPANESE ? '◎' : '['
+var CATEGORY_SYMBOL = JAPANESE ? '' : '{'
+var SUBCATEGORY_SYMBOL = JAPANESE ? '' : '<'
+var SYMBOLS = [SUBJECT_SYMBOL, CATEGORY_SYMBOL, SUBCATEGORY_SYMBOL]
 var TERMS = JAPANESE ? ["春", "秋"] : ["spring", "fall"]
 var NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 'Found no matches!'
 
@@ -33,7 +36,7 @@ var yearOptions = () => {
 var courseOptions = () => {
   var courses = new Set(
     [...document.querySelectorAll('tr.operationboxf  td:nth-child(1)')]
-    .filter((e) => e.innerText.includes(COURSE_SYMBOL))
+    .filter((e) => e.innerText.includes(SUBJECT_SYMBOL))
     .map((e) => e.innerText.replace('\n', ''))
   )
   return makeOptions([...courses])
@@ -74,7 +77,7 @@ var displayTable = () => {
 var filterCourse = ( rows, course ) => {
   var matchedCourse = rows.filter(r => r.innerText.includes(course)).pop()
   var start = rows.indexOf(matchedCourse)
-  var nextCourse = rows.slice(start+1).filter(r => r.innerText.includes(COURSE_SYMBOL)).shift()
+  var nextCourse = rows.slice(start+1).filter(r => r.innerText.includes(SUBJECT_SYMBOL)).shift()
   var end = rows.indexOf(nextCourse)
   return rows.slice(start, end)
 }
@@ -93,16 +96,17 @@ var filterBy = ( rows, index, value ) => {
 
 var filter = ( ...conditions ) => {
   var results = [...document.querySelectorAll('tr.operationboxf')]
-  var skip = ["All", "全て"]
   var course = conditions[0]
+  var skip = ["All", "全て"]
   if ( !skip.includes(course) ){
     results = filterCourse(results, course)
   }
-  // start at 1 to match index of columns
+  // start at 1 to skip filtering by course
   for ( var i = 1; i < conditions.length; i++ ) {
     if ( skip.includes(conditions[i]) ) { continue }
     results = filterBy(results, i, conditions[i])
   }
+  
   return results
 }
 
@@ -129,23 +133,47 @@ var renderStats = ( table, results ) => {
   `)
 }
 
+// give rows class names for styling
+var applyClass = (row) => {
+  if (row.innerText.includes(SUBJECT_SYMBOL)) {
+    row.classList.add('subject')
+  } else if (row.innerText.includes(CATEGORY_SYMBOL)) {
+    row.classList.add('category')
+  } else if (row.innerText.includes(SUBCATEGORY_SYMBOL)) {
+    row.classList.add('subcategory')
+  } else {
+    row.classList.add('course')
+  }
+}
+
+// True if all rows are category rows
+var onlyCategoryNames = (rows) => {
+  var courseResults = rows.filter(row => {  // all rows that are not category rows
+    return !(row.innerText.split('').some(c => SYMBOLS.includes(c)))
+  })
+  return courseResults.length === 0
+}
+
 var renderResults = () => {
   document.querySelector('#filter').onchange = (e) => {
+    // clear any existing results table
     var tableElement = document.querySelector('#lens #results')
     if ( tableElement.children.childElementCount !== 0 ) {
       tableElement.textContent = ''
     }
     var conditions = [...document.querySelectorAll('.condition')].map(f => f.value)
     var results = filter(...conditions)
-    if ( results.length === 0 ) {
+    if ( onlyCategoryNames(results)) {
       alert(NORES_MSG)
+    } else {
+      results.forEach(r => {
+        var rowEl = r.cloneNode(true)
+        rowEl.classList.remove('operationboxf')
+        applyClass(rowEl)
+        tableElement.insertAdjacentElement('beforeend', rowEl)
+      })
+      renderStats(tableElement, results)
     }
-    results.forEach(r => {
-      var rowEl = r.cloneNode(true)
-      rowEl.classList.remove('operationboxf')
-      tableElement.insertAdjacentElement('beforeend', rowEl)
-    })
-    renderStats(tableElement, results)
   }
 }
 
