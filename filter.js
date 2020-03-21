@@ -53,7 +53,7 @@ var gradepointOptions = () => makeOptions(["4", "3", "2", "1", "0"])
 var displayTable = () => {
   document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML('afterend',`
       <div id="lens">
-        <h1>Waseda Lens</h1>
+        <div>Waseda Lens</div>
         <table>
           <tr>
           ${optionNames()}
@@ -177,11 +177,19 @@ var renderResults = () => {
   }
 }
 
+var addCDNs= () => {
+  const iconCdn = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>'
+  const fontCdn = '<link href="https://fonts.googleapis.com/css?family=Baloo+Da+2&display=swap" rel="stylesheet"></link>'
+  const cdns = [iconCdn, fontCdn]
+  cdns.forEach( cdn => document.querySelector('head').insertAdjacentHTML('beforeend', cdn) )
+}
+
 var activate = ( on=true ) => {
   var status = document.querySelectorAll('form[name="FRM_TANI"] table')[1]
   var detail = document.querySelector('form[name="FRM_DETAIL"] table')
   if ( on ) {
     [status, detail].forEach(e => e.setAttribute("style", "display: none"))
+    addCDNs()
     displayTable()
     renderResults()
   } else {
