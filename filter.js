@@ -53,7 +53,7 @@ var gradepointOptions = () => makeOptions(["4", "3", "2", "1", "0"])
 var displayTable = () => {
   document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML('afterend',`
       <div id="lens">
-        <div>Waseda Lens</div>
+        <div class="title"><i class="material-icons">photo_filter</i>Waseda Lens</div>
         <table>
           <tr>
           ${optionNames()}
