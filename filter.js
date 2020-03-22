@@ -11,17 +11,17 @@ var NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 
 
 var makeOptions = (options) => {
   return `
-    <td>
-      <div class="condition">
-        ${options.map(o => `<div class="condition-option">${o}</div>`).join('')}
-      </div>
-    </td>
+    <div class="condition-filters-filter">
+      ${options.map(o => `<div class="condition-filters-filter-option">${o}</div>`).join('')}
+    </div>
   `
 }
 
 var optionNames = () => {
   return `
-    ${[...document.querySelectorAll('th')].map(n => `<th>${n.innerText}</th>`).join('')}
+    ${[...document.querySelectorAll('th')]
+      .map(n => `<div class="condition-titles-title">${n.innerText}</div>`)
+      .join('')}
   `
 }
 
@@ -52,19 +52,17 @@ var displayTable = () => {
   document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML('afterend',`
       <div id="lens">
         <div class="title"><i class="material-icons">photo_filter</i>Waseda Lens</div>
-        <table>
-          <tr>
+          <div class="condition-titles">
           ${optionNames()}
-          </tr>
-          <tr id="filter">
+          </div>
+          <div id="condition-filters">
           ${courseOptions()}
           ${yearOptions()}
           ${termOptions()}
           ${creditOptions()}
           ${gradeOptions()}
           ${gradepointOptions()}
-          </tr>
-        </table>
+          </div>
         <table id="results">
         </table>
       </div>
@@ -153,7 +151,7 @@ var onlyCategoryNames = (rows) => {
 }
 
 var renderResults = () => {
-  document.querySelector('#filter').onchange = (e) => {
+  document.querySelector('#condition-filters').onchange = (e) => {
     // clear any existing results table
     var tableElement = document.querySelector('#lens #results')
     if ( tableElement.children.childElementCount !== 0 ) {
