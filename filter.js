@@ -10,13 +10,11 @@ var NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 
 
 
 var makeOptions = (options) => {
-  var all = JAPANESE ? '全て' : 'All'
   return `
     <td>
-      <select class="condition">
-        <option selected="selected"> ${all} </option>
-        ${options.map(o => `<option value=${o}> ${o} </option>`).join('')}
-      </select>
+      <div class="condition">
+        ${options.map(o => `<div class="condition-option">${o}</div>`).join('')}
+      </div>
     </td>
   `
 }
