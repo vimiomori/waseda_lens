@@ -9,66 +9,6 @@ var TERMS = JAPANESE ? ["春", "秋"] : ["spring", "fall"]
 var NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 'Found no matches!'
 
 
-var makeOptions = (options) => {
-  return `
-    <div class="condition-filters-filter">
-      ${options.map(o => `<div class="condition-filters-filter-option">${o}</div>`).join('')}
-    </div>
-  `
-}
-
-var optionNames = () => {
-  return `
-    ${[...document.querySelectorAll('th')]
-      .map(n => `<div class="condition-titles-title">${n.innerText}</div>`)
-      .join('')}
-  `
-}
-
-var yearOptions = () => {
-  var yearCol = [...document.querySelectorAll('tr.operationboxf  td:nth-child(2)')]
-  var years = new Set(yearCol.filter((e) => !(e.innerText === "\n")).map((e) => e.innerText))
-  return makeOptions([...years])
-}
-
-var courseOptions = () => {
-  var courses = new Set(
-    [...document.querySelectorAll('tr.operationboxf  td:nth-child(1)')]
-    .filter((e) => e.innerText.includes(SUBJECT_SYMBOL))
-    .map((e) => e.innerText.replace('\n', ''))
-  )
-  return makeOptions([...courses])
-}
-
-var termOptions = () => makeOptions(TERMS)
-
-var creditOptions = () => makeOptions(["2", "1"])
-
-var gradeOptions = () => makeOptions(["A", "B", "C", "D", "F", "G", "H", "P"])
-
-var gradepointOptions = () => makeOptions(["4", "3", "2", "1", "0"])
-
-var displayTable = () => {
-  document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML('afterend',`
-      <div id="lens">
-        <div class="title"><i class="material-icons">photo_filter</i>Waseda Lens</div>
-          <div class="condition-titles">
-          ${optionNames()}
-          </div>
-          <div id="condition-filters">
-          ${courseOptions()}
-          ${yearOptions()}
-          ${termOptions()}
-          ${creditOptions()}
-          ${gradeOptions()}
-          ${gradepointOptions()}
-          </div>
-        <table id="results">
-        </table>
-      </div>
-  `)
-}
-
 // return rows that match the course symbol and those after until the next course
 var filterCourse = ( rows, course ) => {
   var matchedCourse = rows.filter(r => r.innerText.includes(course)).pop()
@@ -151,26 +91,105 @@ var onlyCategoryNames = (rows) => {
 }
 
 var renderResults = () => {
-  document.querySelector('#condition-filters').onchange = (e) => {
-    // clear any existing results table
-    var tableElement = document.querySelector('#lens #results')
-    if ( tableElement.children.childElementCount !== 0 ) {
-      tableElement.textContent = ''
-    }
-    var conditions = [...document.querySelectorAll('.condition')].map(f => f.value)
-    var results = filter(...conditions)
-    if ( onlyCategoryNames(results)) {
-      tableElement.insertAdjacentHTML('beforeend', `<tr><td>${NORES_MSG}</td></tr>`)
-    } else {
-      results.forEach(r => {
-        var rowEl = r.cloneNode(true)
-        rowEl.classList.remove('operationboxf')
-        applyClass(rowEl)
-        tableElement.insertAdjacentElement('beforeend', rowEl)
-      })
-      renderStats(tableElement, results)
-    }
+  // clear any existing results table
+  var tableElement = document.querySelector('#lens #results')
+  if ( tableElement.children.childElementCount !== 0 ) {
+    tableElement.textContent = ''
   }
+  var conditions = [...document.querySelectorAll('.selected')]
+                    .map(selected => selected.innerText)
+  var results = filter(...conditions)
+  if ( onlyCategoryNames(results)) {
+    tableElement.insertAdjacentHTML('beforeend', `<tr><td>${NORES_MSG}</td></tr>`)
+  } else {
+    results.forEach(r => {
+      var rowEl = r.cloneNode(true)
+      rowEl.classList.remove('operationboxf')
+      applyClass(rowEl)
+      tableElement.insertAdjacentElement('beforeend', rowEl)
+    })
+    renderStats(tableElement, results)
+  }
+}
+
+var selected = (event) => {
+  event.target.classList.add('selected')
+  renderResults()
+}
+
+var makeOptions = (options, optionLabel) => {
+  return `${options.map((o, i) => `
+    <div class="condition-option-options-select" id="${optionLabel}-${i}">
+      ${o}
+    </div>
+  `).join('')}`
+}
+
+var yearOptions = () => {
+  var yearCol = [...document.querySelectorAll('tr.operationboxf  td:nth-child(2)')]
+  var years = new Set(yearCol.filter((e) => !(e.innerText === "\n")).map((e) => e.innerText))
+  return makeOptions([...years], 'years')
+}
+
+var courseOptions = () => {
+  var courses = new Set(
+    [...document.querySelectorAll('tr.operationboxf  td:nth-child(1)')]
+    .filter((e) => e.innerText.includes(SUBJECT_SYMBOL))
+    .map((e) => e.innerText.replace('\n', ''))
+  )
+  return makeOptions([...courses], 'courses')
+}
+
+var termOptions = () => makeOptions(TERMS, 'terms')
+
+var creditOptions = () => makeOptions(["2", "1"], 'credit')
+
+var gradeOptions = () => makeOptions(["A", "B", "C", "D", "F", "G", "H", "P"], 'grade')
+
+var gradepointOptions = () => makeOptions(["4", "3", "2", "1", "0"], 'gradepoint')
+
+var optionNames = [...document.querySelectorAll('th')].map(title => title.innerText)
+
+var options = [courseOptions, yearOptions, termOptions, creditOptions, gradeOptions, gradepointOptions]
+
+var optionsDict = {}
+
+var showOptions = (event) => {
+  event.target.children[0].classList.toggle("hidden")
+}
+
+var createOptions = () => {
+  optionNames.forEach((name, i) => optionsDict[name] = options[i])
+  return `
+    ${optionNames
+      .map(n => `
+        <div class="conditions-option">${n}
+          <div class="condition-option-options" class="hidden">
+            ${optionsDict[n]()}
+          </div>
+        </div>
+      `)
+      .join('')}
+  `
+}
+
+var displayTable = () => {
+  document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML('afterend',`
+    <div id="lens">
+      <div class="title"><i class="material-icons">photo_filter</i>Waseda Lens</div>
+        <div class="conditions">
+        ${createOptions()}
+        </div>
+      <table id="results">
+      </table>
+    </div>
+  `)
+  document.querySelectorAll('.conditions-option').forEach(option => {
+    option.addEventListener("click", showOptions)
+  })
+  document.querySelectorAll('.condition-option-options-select').forEach(selectOption => {
+    selectOption.addEventListener("click", selected)
+  })
 }
 
 var addCDNs= () => {
@@ -187,7 +206,6 @@ var activate = ( on=true ) => {
     [status, detail].forEach(e => e.setAttribute("style", "display: none"))
     addCDNs()
     displayTable()
-    renderResults()
   } else {
     status.setAttribute("style", "display: inline-block")
     detail.setAttribute("style", "display: block")

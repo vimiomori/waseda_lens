@@ -1,4 +1,17 @@
 
-#lens {
+div .title{
     font-family: 'Baloo Da 2';
+    font-size: 24px;
+}
+
+div .conditions{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    height: 4rem;
+    font-size: 16;
+}
+
+.hidden{
+    visibility: hidden;
 }
