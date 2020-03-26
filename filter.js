@@ -112,14 +112,9 @@ var renderResults = () => {
   }
 }
 
-var selected = (event) => {
-  event.target.classList.add('selected')
-  renderResults()
-}
-
 var makeOptions = (options, optionLabel) => {
   return `${options.map((o, i) => `
-    <div class="condition-option-options-select" id="${optionLabel}-${i}">
+    <div class="condition-option-options-select hidden" id="${optionLabel}-${i}">
       ${o}
     </div>
   `).join('')}`
@@ -155,7 +150,18 @@ var options = [courseOptions, yearOptions, termOptions, creditOptions, gradeOpti
 var optionsDict = {}
 
 var showOptions = (event) => {
-  event.target.children[0].classList.toggle("hidden")
+  [...event.target.children[0].children].map(c => c.classList.toggle("hidden"))
+}
+
+var selected = (event) => {
+  [...event.target.parentElement.children].map(c => {
+    if ([...c.classList].includes('selected')) {
+      c.classList.remove('selected') 
+    }
+    c.classList.toggle("hidden")
+  })
+  event.target.classList.add('selected')
+  renderResults()
 }
 
 var createOptions = () => {
@@ -164,7 +170,7 @@ var createOptions = () => {
     ${optionNames
       .map(n => `
         <div class="conditions-option">${n}
-          <div class="condition-option-options" class="hidden">
+          <div class="condition-option-options">
             ${optionsDict[n]()}
           </div>
         </div>

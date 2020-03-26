@@ -5,13 +5,24 @@ div .title{
 }
 
 div .conditions{
+    padding-bottom: 1rem;
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
-    height: 4rem;
-    font-size: 16;
+    justify-content: space-around;
 }
 
-.hidden{
-    visibility: hidden;
+.conditions-option {
+    font-size: 16px;
+}
+
+.conditinos-option-options {
+    font-size: 14px;
+}
+
+.hidden {
+    display: none;
+}
+
+.selected {
+    display: block;
 }
