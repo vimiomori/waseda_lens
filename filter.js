@@ -56,6 +56,7 @@ var renderStats = ( table, results ) => {
       gradePoints.push(val)
     }
   }
+  if (gradePoints.length === 0) { return }
   var gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length
   table.insertAdjacentHTML('beforeend', `
     <tr>
@@ -150,7 +151,9 @@ var options = [courseOptions, yearOptions, termOptions, creditOptions, gradeOpti
 var optionsDict = {}
 
 var showOptions = (event) => {
-  [...event.target.children[0].children].map(c => c.classList.toggle("hidden"))
+  // Don't respond to menu items. Only respond to menu header.
+  if (event.target.classList[0] !== "conditions-option") { return }
+  Array.from(event.target.children[0].children).map(c => c.classList.toggle("hidden"))
 }
 
 var selected = (event) => {
