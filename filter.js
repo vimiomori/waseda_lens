@@ -1,44 +1,44 @@
 'use strict'
 
-var JAPANESE = document.querySelector('title').innerText.replace('\n', '') === '成績照会' ? true : false
-var SUBJECT_SYMBOL = JAPANESE ? '◎' : '['
-var CATEGORY_SYMBOL = JAPANESE ? '' : '{'
-var SUBCATEGORY_SYMBOL = JAPANESE ? '' : '<'
-var SYMBOLS = [SUBJECT_SYMBOL, CATEGORY_SYMBOL, SUBCATEGORY_SYMBOL]
-var TERMS = JAPANESE ? ["春", "秋"] : ["spring", "fall"]
-var NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 'Found no matches!'
+const JAPANESE = document.querySelector('title').innerText.replace('\n', '') === '成績照会' ? true : false
+const SUBJECT_SYMBOL = JAPANESE ? '◎' : '['
+const CATEGORY_SYMBOL = JAPANESE ? '' : '{'
+const SUBCATEGORY_SYMBOL = JAPANESE ? '' : '<'
+const SYMBOLS = [SUBJECT_SYMBOL, CATEGORY_SYMBOL, SUBCATEGORY_SYMBOL]
+const TERMS = JAPANESE ? ["春", "秋"] : ["spring", "fall"]
+const NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 'Found no matches!'
 
 
 // return rows that match the course symbol and those after until the next course
-var filterCourse = ( rows, course ) => {
-  var matchedCourse = rows.filter(r => r.innerText.includes(course)).pop()
-  var start = rows.indexOf(matchedCourse)
-  var nextCourse = rows.slice(start+1).filter(r => r.innerText.includes(SUBJECT_SYMBOL)).shift()
-  var end = rows.indexOf(nextCourse)
+const filterCourse = ( rows, course ) => {
+  const matchedCourse = rows.filter(r => r.innerText.includes(course)).pop()
+  const start = rows.indexOf(matchedCourse)
+  const nextCourse = rows.slice(start+1).filter(r => r.innerText.includes(SUBJECT_SYMBOL)).shift()
+  const end = rows.indexOf(nextCourse)
   return rows.slice(start, end)
 }
 
-var removeEmptyCategories = ( rows ) => {
-  var firstCategory = rows.filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
-  var start = rows.indexOf(firstCategory)
-  var nextCategory = rows.slice(start+1).filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
+const removeEmptyCategories = ( rows ) => {
+  const firstCategory = rows.filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
+  const start = rows.indexOf(firstCategory)
+  const nextCategory = rows.slice(start+1).filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
   if (!nextCategory) { return rows }
-  var end = rows.indexOf(nextCategory)
+  const end = rows.indexOf(nextCategory)
   // Get all rows that don't have a SYMBOL
-  var courses = rows.slice(start, end).filter(r => !SYMBOLS.some(s => r.innerText.includes(s)))
+  const courses = rows.slice(start, end).filter(r => !SYMBOLS.some(s => r.innerText.includes(s)))
   if (!courses.length) {
     rows.splice(start, end - start) // remove rows with no courses
     return removeEmptyCategories(rows) // continue with remaining rows
   } else {
-    var checked = rows.splice(0, end)
+    const checked = rows.splice(0, end)
     return [...checked, ...removeEmptyCategories(rows)]
   }
 }
 
 // filter by the value of the nth-child 
-var filterBy = ( rows, index, value ) => {
+const filterBy = ( rows, index, value ) => {
   return rows.filter(r => {
-    var cellVal = [...r.children][index].innerText
+    const cellVal = [...r.children][index].innerText
     if (cellVal.includes(value) || cellVal === "\n") {
       return true
     } else {
@@ -47,15 +47,16 @@ var filterBy = ( rows, index, value ) => {
   })
 }
 
-var filter = ( ...conditions ) => {
-  var results = [...document.querySelectorAll('tr.operationboxf')]
-  var course = conditions[0]
-  var skip = ["All", "全て"]
+const filter = ( ...conditions ) => {
+  let results = [...document.querySelectorAll('tr.operationboxf')]
+  const course = conditions[0]
+  const skip = ["All", "全て"]
   if ( !skip.includes(course) ){
     results = filterCourse(results, course)
   }
   // start at 1 to skip filtering by course
-  for ( var i = 1; i < conditions.length; i++ ) {
+  // use for-loop to recursively filter results
+  for ( let i = 1; i < conditions.length; i++ ) {
     if ( skip.includes(conditions[i]) ) { continue }
     results = filterBy(results, i, conditions[i])
   }
@@ -63,18 +64,15 @@ var filter = ( ...conditions ) => {
   return results
 }
 
-var renderStats = ( table, results ) => {
-  var gradePoints = []
-  for ( var i = 0; i < results.length; i++ ) {
-    var val = parseInt([...results[i].children].pop().innerText)
-    if ( isNaN(val) ) {
-      continue
-    } else {
-      gradePoints.push(val)
-    }
-  }
+const renderStats = ( table, results ) => {
+  const gradePoints = results.map(result => {
+    // GP is the last td in a result row
+    const val = parseInt([...result.children].pop().innerText)
+    if ( isNaN(val) ) { continue }
+    return val
+  })
   if (gradePoints.length === 0) { return }
-  var gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length
+  const gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length
   table.insertAdjacentHTML('beforeend', `
     <tr>
       <td></td>
@@ -88,7 +86,7 @@ var renderStats = ( table, results ) => {
 }
 
 // give rows class names for styling
-var applyClass = (row) => {
+const applyClass = (row) => {
   if (row.innerText.includes(SUBJECT_SYMBOL)) {
     row.classList.add('subject')
   } else if (row.innerText.includes(CATEGORY_SYMBOL)) {
@@ -101,27 +99,28 @@ var applyClass = (row) => {
 }
 
 // True if all rows are category rows
-var onlyCategoryNames = (rows) => {
-  var courseResults = rows.filter(row => {  // all rows that are not category rows
+const onlyCategoryNames = (rows) => {
+  const courseResults = rows.filter(row => {  // all rows that are not category rows
     return !(row.innerText.split('').some(c => SYMBOLS.includes(c)))
   })
   return courseResults.length === 0
 }
 
-var renderResults = () => {
+const renderResults = () => {
   // clear any existing results table
-  var tableElement = document.querySelector('#lens #results')
+  const tableElement = document.querySelector('#lens #results')
   if ( tableElement.children.childElementCount !== 0 ) {
     tableElement.textContent = ''
   }
-  var conditions = [...document.querySelectorAll('.selected')]
-                    .map(selected => selected.innerText)
-  var results = filter(...conditions)
-  if ( onlyCategoryNames(results)) {
+  const conditions = [...document.querySelectorAll('.selected')]
+                     .map(selected => selected.innerText)
+  const results = filter(...conditions)
+  if ( onlyCategoryNames(results) ) {
+    // Display no results found error
     tableElement.insertAdjacentHTML('beforeend', `<tr><td>${NORES_MSG}</td></tr>`)
   } else {
     results.forEach(r => {
-      var rowEl = r.cloneNode(true)
+      const rowEl = r.cloneNode(true)
       rowEl.classList.remove('operationboxf')
       applyClass(rowEl)
       tableElement.insertAdjacentElement('beforeend', rowEl)
@@ -130,7 +129,7 @@ var renderResults = () => {
   }
 }
 
-var makeOptions = (options, optionLabel) => {
+const makeOptions = (options, optionLabel) => {
   return `${options.map((o, i) => `
     <div class="condition-option-options-select hidden" id="${optionLabel}-${i}">
       ${o}
@@ -138,14 +137,8 @@ var makeOptions = (options, optionLabel) => {
   `).join('')}`
 }
 
-var yearOptions = () => {
-  var yearCol = [...document.querySelectorAll('tr.operationboxf  td:nth-child(2)')]
-  var years = new Set(yearCol.filter((e) => !(e.innerText === "\n")).map((e) => e.innerText))
-  return makeOptions([...years], 'years')
-}
-
-var courseOptions = () => {
-  var courses = new Set(
+const courseOptions = () => {
+  const courses = new Set(
     [...document.querySelectorAll('tr.operationboxf  td:nth-child(1)')]
     .filter((e) => e.innerText.includes(SUBJECT_SYMBOL))
     .map((e) => e.innerText.replace('\n', ''))
@@ -153,29 +146,37 @@ var courseOptions = () => {
   return makeOptions([...courses], 'courses')
 }
 
-var termOptions = () => makeOptions(TERMS, 'terms')
+const yearOptions = () => {
+  const yearCol = [...document.querySelectorAll('tr.operationboxf  td:nth-child(2)')]
+  const years = new Set(yearCol.filter((e) => !(e.innerText === "\n")).map((e) => e.innerText))
+  return makeOptions([...years], 'years')
+}
 
-var creditOptions = () => makeOptions(["2", "1"], 'credit')
+const termOptions = () => makeOptions(TERMS, 'terms')
 
-var gradeOptions = () => makeOptions(["A", "B", "C", "D", "F", "G", "H", "P"], 'grade')
+const creditOptions = () => makeOptions(["2", "1"], 'credit')
 
-var gradepointOptions = () => makeOptions(["4", "3", "2", "1", "0"], 'gradepoint')
+const gradeOptions = () => makeOptions(["A", "B", "C", "D", "F", "G", "H", "P"], 'grade')
 
-var optionNames = [...document.querySelectorAll('th')].map(title => title.innerText)
+const gradepointOptions = () => makeOptions(["4", "3", "2", "1", "0"], 'gradepoint')
 
-var options = [courseOptions, yearOptions, termOptions, creditOptions, gradeOptions, gradepointOptions]
+const optionNames = [...document.querySelectorAll('th')].map(title => title.innerText)
 
-var optionsDict = {}
+const options = [courseOptions, yearOptions, termOptions, creditOptions, gradeOptions, gradepointOptions]
 
-var showOptions = (event) => {
+const optionsDict = {}
+
+const showOptions = (event) => {
   // Don't respond to menu items. Only respond to menu header.
   if (event.target.classList[0] !== "conditions-option") { return }
   Array.from(event.target.children[0].children).map(c => c.classList.toggle("hidden"))
 }
 
-var selected = (event) => {
+const selected = (event) => {
+  // hide all other options
   [...event.target.parentElement.children].map(c => {
     if ([...c.classList].includes('selected')) {
+      // hide previously selected option
       c.classList.remove('selected') 
     }
     c.classList.toggle("hidden")
@@ -184,7 +185,7 @@ var selected = (event) => {
   renderResults()
 }
 
-var createOptions = () => {
+const createOptions = () => {
   optionNames.forEach((name, i) => optionsDict[name] = options[i])
   return `
     ${optionNames
@@ -199,7 +200,7 @@ var createOptions = () => {
   `
 }
 
-var displayTable = () => {
+const displayTable = () => {
   document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML('afterend',`
     <div id="lens">
       <div class="title"><i class="material-icons">photo_filter</i>Waseda Lens</div>
@@ -218,16 +219,16 @@ var displayTable = () => {
   })
 }
 
-var addCDNs= () => {
+const addCDNs= () => {
   const iconCdn = '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>'
   const fontCdn = '<link href="https://fonts.googleapis.com/css?family=Baloo+Da+2&display=swap" rel="stylesheet"></link>'
   const cdns = [iconCdn, fontCdn]
   cdns.forEach( cdn => document.querySelector('head').insertAdjacentHTML('beforeend', cdn) )
 }
 
-var activate = ( on=true ) => {
-  var status = document.querySelectorAll('form[name="FRM_TANI"] table')[1]
-  var detail = document.querySelector('form[name="FRM_DETAIL"] table')
+const activate = ( on ) => {
+  const status = document.querySelectorAll('form[name="FRM_TANI"] table')[1]
+  const detail = document.querySelector('form[name="FRM_DETAIL"] table')
   if ( on ) {
     [status, detail].forEach(e => e.setAttribute("style", "display: none"))
     addCDNs()
@@ -239,7 +240,7 @@ var activate = ( on=true ) => {
   }
 }
 
-var port = chrome.runtime.onConnect.addListener(function(port){
+const port = chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === "activate")
   port.onMessage.addListener(function(msg) {
     activate(msg.activate)
