@@ -4,7 +4,7 @@
 	"description": "Helper for viewing the waseda grade report",
 	"manifest_version": 2,
 
-	"permissions": ["activeTab", "declarativeContent"],
+	"permissions": ["activeTab", "declarativeContent", "storage"],
 
 	"background": {
 		"scripts": ["background.js"],
