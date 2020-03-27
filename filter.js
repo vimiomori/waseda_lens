@@ -18,6 +18,23 @@ var filterCourse = ( rows, course ) => {
   return rows.slice(start, end)
 }
 
+var removeEmptyCategories = ( rows ) => {
+  var firstCategory = rows.filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
+  var start = rows.indexOf(firstCategory)
+  var nextCategory = rows.slice(start+1).filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
+  if (!nextCategory) { return rows }
+  var end = rows.indexOf(nextCategory)
+  // Get all rows that don't have a SYMBOL
+  var courses = rows.slice(start, end).filter(r => !SYMBOLS.some(s => r.innerText.includes(s)))
+  if (!courses.length) {
+    rows.splice(start, end - start) // remove rows with no courses
+    return removeEmptyCategories(rows) // continue with remaining rows
+  } else {
+    var checked = rows.splice(0, end)
+    return [...checked, ...removeEmptyCategories(rows)]
+  }
+}
+
 // filter by the value of the nth-child 
 var filterBy = ( rows, index, value ) => {
   return rows.filter(r => {
@@ -42,7 +59,7 @@ var filter = ( ...conditions ) => {
     if ( skip.includes(conditions[i]) ) { continue }
     results = filterBy(results, i, conditions[i])
   }
-  
+  results = removeEmptyCategories(results)
   return results
 }
 
