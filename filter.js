@@ -1,76 +1,23 @@
 'use strict'
 
-const JAPANESE = document.querySelector('title').innerText.replace('\n', '') === '成績照会' ? true : false
+const JAPANESE = /[u4e00-\u9fff]/.test(document.querySelector('title').innerText)
 const SUBJECT_SYMBOL = JAPANESE ? '◎' : '['
-const CATEGORY_SYMBOL = JAPANESE ? '' : '{'
-const SUBCATEGORY_SYMBOL = JAPANESE ? '' : '<'
+const CATEGORY_SYMBOL = JAPANESE ? '【' : '{'
+const SUBCATEGORY_SYMBOL = JAPANESE ? '《' : '<'
 const SYMBOLS = [SUBJECT_SYMBOL, CATEGORY_SYMBOL, SUBCATEGORY_SYMBOL]
 const TERMS = JAPANESE ? ["春", "秋"] : ["spring", "fall"]
+const INSTRUCTION_MSG = JAPANESE ?
+  'カテゴリー名をクリックしてフィルターの条件を選択してください。' :
+  'Click a category to select conditions to filter by.'
 const NORES_MSG = JAPANESE ? '該当する項目はありませんでした！' : 'Found no matches!'
 
-
-// return rows that match the course symbol and those after until the next course
-const filterCourse = ( rows, course ) => {
-  const matchedCourse = rows.filter(r => r.innerText.includes(course)).pop()
-  const start = rows.indexOf(matchedCourse)
-  const nextCourse = rows.slice(start+1).filter(r => r.innerText.includes(SUBJECT_SYMBOL)).shift()
-  const end = rows.indexOf(nextCourse)
-  return rows.slice(start, end)
-}
-
-const removeEmptyCategories = ( rows ) => {
-  const firstCategory = rows.filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
-  const start = rows.indexOf(firstCategory)
-  const nextCategory = rows.slice(start+1).filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
-  if (!nextCategory) { return rows }
-  const end = rows.indexOf(nextCategory)
-  // Get all rows that don't have a SYMBOL
-  const courses = rows.slice(start, end).filter(r => !SYMBOLS.some(s => r.innerText.includes(s)))
-  if (!courses.length) {
-    rows.splice(start, end - start) // remove rows with no courses
-    return removeEmptyCategories(rows) // continue with remaining rows
-  } else {
-    const checked = rows.splice(0, end)
-    return [...checked, ...removeEmptyCategories(rows)]
-  }
-}
-
-// filter by the value of the nth-child 
-const filterBy = ( rows, index, value ) => {
-  return rows.filter(r => {
-    const cellVal = [...r.children][index].innerText
-    if (cellVal.includes(value) || cellVal === "\n") {
-      return true
-    } else {
-      return false
-    }
-  })
-}
-
-const filter = ( ...conditions ) => {
-  let results = [...document.querySelectorAll('tr.operationboxf')]
-  const course = conditions[0]
-  const skip = ["All", "全て"]
-  if ( !skip.includes(course) ){
-    results = filterCourse(results, course)
-  }
-  // start at 1 to skip filtering by course
-  // use for-loop to recursively filter results
-  for ( let i = 1; i < conditions.length; i++ ) {
-    if ( skip.includes(conditions[i]) ) { continue }
-    results = filterBy(results, i, conditions[i])
-  }
-  results = removeEmptyCategories(results)
-  return results
-}
 
 const renderStats = ( table, results ) => {
   const gradePoints = results.map(result => {
     // GP is the last td in a result row
-    const val = parseInt([...result.children].pop().innerText)
-    if ( isNaN(val) ) { continue }
-    return val
-  })
+    return parseInt([...result.children].pop().innerText)
+  }).filter(v => !isNaN(v))
+
   if (gradePoints.length === 0) { return }
   const gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length
   table.insertAdjacentHTML('beforeend', `
@@ -112,19 +59,22 @@ const renderResults = () => {
   if ( tableElement.children.childElementCount !== 0 ) {
     tableElement.textContent = ''
   }
-  const conditions = [...document.querySelectorAll('.selected')]
-                     .map(selected => selected.innerText)
-  const results = filter(...conditions)
-  if ( conditions.length === 0 ) {
+  const selectedElements = [...document.querySelectorAll('.selected')]
+  const selectedCategories = selectedElements.map(el => {
+    return el.parentElement.parentElement.innerText.split('\n')[0]
+  })
+  const filterValues = selectedElements.map(el => el.innerText)
+  const results = filter(selectedCategories, filterValues)
+  if ( selectedElements.length === 0 ) {
     tableElement.insertAdjacentHTML('beforeend',
-      '<tr><td>Click a category to select conditions to filter by.</td></tr>'
+      `<tr><td>${INSTRUCTION_MSG}</td></tr>`
     )
   } else if ( onlyCategoryNames(results) ) {
     // Display no results found error
     tableElement.insertAdjacentHTML('beforeend', `<tr><td>${NORES_MSG}</td></tr>`)
   } else {
     results.forEach(r => {
-      const rowEl = r.cloneNode(true)
+      let rowEl = r.cloneNode(true)
       rowEl.classList.remove('operationboxf')
       applyClass(rowEl)
       tableElement.insertAdjacentElement('beforeend', rowEl)
@@ -169,6 +119,64 @@ const optionNames = [...document.querySelectorAll('th')].map(title => title.inne
 const options = [courseOptions, yearOptions, termOptions, creditOptions, gradeOptions, gradepointOptions]
 
 const optionsDict = {}
+
+const filter = ( categories, filterValues ) => {
+  let results = [...document.querySelectorAll('tr.operationboxf')]
+  if ( categories.includes(optionNames[0]) ){
+    // optionNames[0] = Course
+    results = filterCourse(results, filterValues[0])
+    filterValues.shift()
+    categories.shift()
+  }
+  const conditionsDict = {}
+  categories.map((category, i) => conditionsDict[category] = filterValues[i])
+  // use for-loop to recursively filter results
+  for ( const condition in conditionsDict ) {
+    const columnIndex = optionNames.indexOf(condition)
+    results = filterBy(results, columnIndex, conditionsDict[condition])
+  }
+  results = removeEmptyCategories(results)
+  return results
+}
+
+// return rows that match the course symbol and those after until the next course
+const filterCourse = ( rows, course ) => {
+  const matchedCourse = rows.filter(r => r.innerText.includes(course)).pop()
+  const start = rows.indexOf(matchedCourse)
+  const nextCourse = rows.slice(start+1).filter(r => r.innerText.includes(SUBJECT_SYMBOL)).shift()
+  const end = rows.indexOf(nextCourse)
+  return rows.slice(start, end)
+}
+
+const removeEmptyCategories = ( rows ) => {
+  const firstCategory = rows.filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
+  const start = rows.indexOf(firstCategory)
+  const nextCategory = rows.slice(start+1).filter(r => r.innerText.includes(CATEGORY_SYMBOL)).shift()
+  if (!nextCategory) { return rows }
+  const end = rows.indexOf(nextCategory)
+  // Get all rows that don't have a SYMBOL
+  const courses = rows.slice(start, end).filter(r => !SYMBOLS.some(s => r.innerText.includes(s)))
+  if (!courses.length) {
+    rows.splice(start, end - start) // remove rows with no courses
+    return removeEmptyCategories(rows) // continue with remaining rows
+  } else {
+    const checked = rows.splice(0, end)
+    return [...checked, ...removeEmptyCategories(rows)]
+  }
+}
+
+// filter by the value of the nth-child 
+const filterBy = ( rows, index, value ) => {
+  return rows.filter(r => {
+    const cellVal = [...r.children][index].innerText
+    if (cellVal.includes(value) || cellVal === "\n") {
+      return true
+    } else {
+      return false
+    }
+  })
+}
+
 
 const showOptions = (event) => {
   // Don't respond to menu items. Only respond to menu header.
@@ -217,7 +225,7 @@ const displayTable = () => {
         ${createOptions()}
         </div>
       <table id="results">
-        <tr><td>Click a category to select conditions to filter by.</td></tr>
+      <tr><td>${INSTRUCTION_MSG}</td></tr>
       </table>
     </div>
   `)
