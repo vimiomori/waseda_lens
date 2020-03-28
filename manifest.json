@@ -18,14 +18,24 @@
 			"run_at": "document_idle"
 		},
 		{
-			"js": ["filter.js"],
+			"js": [
+				"filter.js",
+				"src/js/activate.js",
+				"src/js/createOptions.js",
+				"src/js/filter.js",
+				"src/js/listeners.js",
+				"src/js/renderResults.js"
+			],
 			"css": ["filter.css"],
 			"matches": ["https://gradereport-ty.waseda.jp/*"],
 			"run_at": "document_idle"
 		}
 	],
 
-  "web_accessible_resources": ["filter.js"],
+  "web_accessible_resources": [
+		"filter.js",
+		"src/js/*"
+	],
 
 	"page_action": {
 		"default_title": "Waseda Lens",
