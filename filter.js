@@ -115,7 +115,11 @@ const renderResults = () => {
   const conditions = [...document.querySelectorAll('.selected')]
                      .map(selected => selected.innerText)
   const results = filter(...conditions)
-  if ( onlyCategoryNames(results) ) {
+  if ( conditions.length === 0 ) {
+    tableElement.insertAdjacentHTML('beforeend',
+      '<tr><td>Click a category to select conditions to filter by.</td></tr>'
+    )
+  } else if ( onlyCategoryNames(results) ) {
     // Display no results found error
     tableElement.insertAdjacentHTML('beforeend', `<tr><td>${NORES_MSG}</td></tr>`)
   } else {
@@ -173,15 +177,20 @@ const showOptions = (event) => {
 }
 
 const selected = (event) => {
-  // hide all other options
-  [...event.target.parentElement.children].map(c => {
-    if ([...c.classList].includes('selected')) {
-      // hide previously selected option
-      c.classList.remove('selected') 
-    }
-    c.classList.toggle("hidden")
-  })
-  event.target.classList.add('selected')
+  // When the same option is clicked consider it a deselect
+  if ([...event.target.classList].includes('selected')) {
+    event.target.classList.remove('selected')
+  } else {
+    // hide all other options
+    [...event.target.parentElement.children].map(c => {
+      if ([...c.classList].includes('selected')) {
+        // hide previously selected option
+        c.classList.remove('selected')
+      }
+      c.classList.toggle('hidden')
+    })
+    event.target.classList.add('selected')
+  }
   renderResults()
 }
 
@@ -208,6 +217,7 @@ const displayTable = () => {
         ${createOptions()}
         </div>
       <table id="results">
+        <tr><td>Click a category to select conditions to filter by.</td></tr>
       </table>
     </div>
   `)
