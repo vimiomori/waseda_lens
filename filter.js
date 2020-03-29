@@ -225,7 +225,6 @@ const filterBy = (rows, index, value) => {
 
 const showOptions = event => {
   // Don't respond to menu items. Only respond to menu header.
-  console.log(event);
   if (event.target.classList[0] !== "condition-option-title") {
     return;
   }
@@ -265,8 +264,8 @@ const createOptions = () => {
         name =>
       `
         <div class="condition-option">
-          <div class="condition-option-title${name === optionNames[0] ? " fat" : ""}">${name}</div>
-          <div class="condition-option-options">${optionsDict[name]()}</div>
+          <div class="condition-option-title">${name}</div>
+          <div class="condition-option-options${name === optionNames[0] ? " fat" : ""}">${optionsDict[name]()}</div>
         </div>
       `
       )
@@ -290,14 +289,11 @@ const displayTable = () => {
   `
   );
   document.querySelectorAll(".condition-option").forEach(option => {
-    console.log(option)
     option.addEventListener("click", showOptions);
   });
-  document
-    .querySelectorAll(".condition-option-options-select")
-    .forEach(selectOption => {
-      selectOption.addEventListener("click", selected);
-    });
+  document.querySelectorAll(".condition-option-options-select").forEach(selectOption => {
+    selectOption.addEventListener("click", selected);
+  });
 };
 
 const addCDNs = () => {
@@ -312,16 +308,18 @@ const addCDNs = () => {
 };
 
 const activate = on => {
+  const banner = document.querySelectorAll('.basecolor')
   const status = document.querySelectorAll('form[name="FRM_TANI"] table');
   const detail = document.querySelector('form[name="FRM_DETAIL"] table');
   if (on) {
     addCDNs();
     displayTable();
-    [detail, ...status].forEach(e => e.setAttribute("style", "display: none"));
+    [detail, ...status, ...banner].forEach(e => e.classList.add("hidden"));
+    document.querySelector(".operationboxt").closest("table").classList.add("original-table")
   } else {
-    [...status].forEach(s => s.setAttribute("style", "display: inline-block"));
-    detail.setAttribute("style", "display: block");
+    [detail, ...status, ...banner].forEach(e => e.classList.remove("hidden"));
     document.querySelector("#lens").remove();
+    document.querySelector(".operationboxt").closest("table").classList.remove("original-table")
   }
 };
 

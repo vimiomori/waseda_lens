@@ -3,10 +3,20 @@
     padding: 0;
 }
 
+#lens {
+    background-color: #00c5ff42;
+}
+
 div .title{
     font-family: 'Baloo Da 2';
     font-size: 24px;
+    padding: 20px 0px 15px 40px;
+    background: #117ba2;
+    color: white;
+    text-shadow: 2px black;
+    text-shadow: -2px 2px 2px rgba(5, 41, 58, 0.88);
 }
+
 
 div .condition{
     padding-bottom: 1rem;
@@ -21,22 +31,46 @@ div .condition{
     align-items: center;
     position: relative;
     width: 17%;
+    text-align: center;
+    width: 100%;
 }
 
 .condition-option-title {
     font-size: 16px;
+    cursor: pointer;
+    background: #257ba2;
+    border: 1px solid #10415482;
+    color: white;
+    width: 80%;
+    margin: 10px;
+    padding: 5px 0 5px 0;
+    border-radius: 3px;
+    box-shadow: rgba(3, 39, 56, 0.65) 0px 5px 10px 0px;
+    transition: 0.3s;
 }
+
+.condition-option-title:hover{
+    box-shadow: rgba(3, 39, 56, 0.7) 0px 5px 10px 1px;
+    transform: scale(1.05);
+}
+
+
+.condition-option-title:active {
+    box-shadow: inset 0px 0px 10px 0px rgba(3, 39, 56, 0.77);
+}
+
 
 .condition-option-options {
     font-size: 14px;
     position: absolute;
     margin-top: 30px;
-    width: 100%;
     text-align: center;
+    z-index: 1;
 }
 
 .fat {
     text-align: left;
+    width: 95%
 }
 
 .hidden {
@@ -47,7 +81,12 @@ div .condition{
     display: block;
 }
 
-/* testing classes  */
+.original-table {
+    opacity: 65%;
+    transition: 0.3s;
+}
+
+/* testing classes
 
 div[class*="condition"] {
     border: 1px solid
@@ -71,4 +110,4 @@ div[class*="condition"] {
 
 .condition-option-options-select{
     border: none !important
-}
+} */
