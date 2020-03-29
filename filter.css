@@ -1,22 +1,42 @@
+* {
+    margin: 0;
+    padding: 0;
+}
 
 div .title{
     font-family: 'Baloo Da 2';
     font-size: 24px;
 }
 
-div .conditions{
+div .condition{
     padding-bottom: 1rem;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
 }
 
-.conditions-option {
+.condition-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 17%;
+}
+
+.condition-option-title {
     font-size: 16px;
 }
 
-.conditinos-option-options {
+.condition-option-options {
     font-size: 14px;
+    position: absolute;
+    margin-top: 30px;
+    width: 100%;
+    text-align: center;
+}
+
+.fat {
+    text-align: left;
 }
 
 .hidden {
@@ -25,4 +45,30 @@ div .conditions{
 
 .selected {
     display: block;
+}
+
+/* testing classes  */
+
+div[class*="condition"] {
+    border: 1px solid
+}
+
+.condition {
+    border-color: black !important
+}
+
+.condition-option {
+    border-color: red !important
+}
+
+.condition-option-title {
+    border-color: blue !important
+}
+
+.condition-option-options{
+    border-color: greenyellow !important
+}
+
+.condition-option-options-select{
+    border: none !important
 }
