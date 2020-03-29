@@ -66,11 +66,23 @@ div .condition{
     margin-top: 30px;
     text-align: center;
     z-index: 1;
+    background-color: #025479;
+    margin-top: 55px;
+    box-shadow: 0 0 20px 2px #00000069;
+    color: white;
+}
+
+.condition-option-options-select {
+    padding: 10px 10px 10px 10px;
+}
+
+.condition-option-options-select:hover {
+    background-color: #387ea9;
 }
 
 .fat {
     text-align: left;
-    width: 95%
+    width: 200px;
 }
 
 .hidden {
@@ -84,6 +96,19 @@ div .condition{
 .original-table {
     opacity: 65%;
     transition: 0.3s;
+}
+
+#results {
+    margin: 40px 0 0 15px;
+    padding-bottom: 15px;
+}
+
+#results td {
+    padding-right: 30px;
+}
+
+#results td:last-child {
+    text-align: right;
 }
 
 /* testing classes

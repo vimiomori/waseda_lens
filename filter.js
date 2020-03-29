@@ -113,8 +113,8 @@ const makeOptions = (options, optionLabel) => {
 const courseOptions = () => {
   const courses = new Set(
     [...document.querySelectorAll("tr.operationboxf  td:nth-child(1)")]
-      .filter(e => e.innerText.includes(SUBJECT_SYMBOL))
-      .map(e => e.innerText.replace("\n", ""))
+      .filter(e => /[◎\[]/.test(e.innerText))
+      .map(e => e.innerText.replace(/[\n◎\[]/g, ""))
   );
   return makeOptions([...courses], "courses");
 };
