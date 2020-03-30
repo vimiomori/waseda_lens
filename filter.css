@@ -5,6 +5,7 @@
 
 #lens {
     background-color: #00c5ff42;
+    padding-bottom: 15px;
 }
 
 div .title{
@@ -100,15 +101,37 @@ div .condition{
 
 #results {
     margin: 40px 0 0 15px;
-    padding-bottom: 15px;
+    border-collapse: collapse;
+    border: 2px solid #9dd8ef;
 }
 
 #results td {
-    padding-right: 30px;
+    padding: 5px 30px 5px 0;
 }
 
 #results td:last-child {
     text-align: right;
+}
+
+#results .course:nth-child(even) {
+    background-color: #9dd8ef;
+}
+
+.stats {
+    display: inline-block;
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    /* padding-top: 40px; */
+    margin: 40px 0 15px 20px;
+    border-radius: 100%;
+    background-color: #257ba2;
+    text-align: center;
+    color: white;
+}
+
+.stats-title {
+    margin-top: 25px;
 }
 
 /* testing classes

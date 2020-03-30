@@ -11,9 +11,16 @@ const TERMS = JAPANESE ? ["春", "秋"] : ["spring", "fall"];
 const INSTRUCTION_MSG = JAPANESE
   ? "カテゴリー名をクリックしてフィルターの条件を選択してください。"
   : "Click a category to select conditions to filter by.";
-const NORES_MSG = JAPANESE
-  ? "該当する項目はありませんでした！"
-  : "Found no matches!";
+const NORES_MSG =
+  JAPANESE ?
+  "該当する項目はありませんでした！" :
+  "Found no matches!";
+const USER = document.querySelector('.welcome').innerText.match(/Welcomeback\s+(.+)/)[1];
+const STATS_TITLE = 
+  JAPANESE ?
+  "の成績概略" :
+  "'s stats";
+
 
 const renderStats = (table, results) => {
   const gradePoints = results
@@ -28,17 +35,13 @@ const renderStats = (table, results) => {
   }
   const gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length;
   table.insertAdjacentHTML(
-    "beforeend",
+    "afterend",
     `
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>GPA: </td>
-      <td>${gpa.toFixed(2)}</td>
-    <tr>
-  `
+    <div class="stats">
+      <div class="stats-title">${USER}${STATS_TITLE}</div>
+      <div class="stats-gpa">GPA: ${gpa.toFixed(2)}</div>
+    </div>
+    `
   );
 };
 
@@ -113,8 +116,8 @@ const makeOptions = (options, optionLabel) => {
 const courseOptions = () => {
   const courses = new Set(
     [...document.querySelectorAll("tr.operationboxf  td:nth-child(1)")]
-      .filter(e => /[◎\[]/.test(e.innerText))
-      .map(e => e.innerText.replace(/[\n◎\[]/g, ""))
+      .filter(e => /[◎\[\]]/.test(e.innerText))
+      .map(e => e.innerText.replace(/[\n◎\[\]]/g, ""))
   );
   return makeOptions([...courses], "courses");
 };
@@ -156,12 +159,14 @@ const optionsDict = {};
 
 const filter = (categories, filterValues) => {
   let results = [...document.querySelectorAll("tr.operationboxf")];
+  console.log('categories', categories, 'results', results)
   if (categories.includes(optionNames[0])) {
     // optionNames[0] = Course
     results = filterCourse(results, filterValues[0]);
     filterValues.shift();
     categories.shift();
   }
+  console.log('results', results)
   const conditionsDict = {};
   categories.map((category, i) => (conditionsDict[category] = filterValues[i]));
   // use for-loop to recursively filter results
@@ -169,7 +174,9 @@ const filter = (categories, filterValues) => {
     const columnIndex = optionNames.indexOf(condition);
     results = filterBy(results, columnIndex, conditionsDict[condition]);
   }
+  results.forEach(r => console.log(r))
   results = removeEmptyCategories(results);
+  console.log('results', results)
   return results;
 };
 
@@ -233,7 +240,6 @@ const showOptions = event => {
       ".condition-option-options-select"
     )
   ].forEach(el => {
-    console.log(el)
     el.classList.toggle("hidden");
   });
 };
