@@ -45,26 +45,24 @@ const renderStats = (table, results) => {
   );
 };
 
-// give rows class names for styling
-const applyClass = row => {
-  if (row.innerText.includes(SUBJECT_SYMBOL)) {
-    row.classList.add("subject");
-  } else if (row.innerText.includes(CATEGORY_SYMBOL)) {
-    row.classList.add("category");
-  } else if (row.innerText.includes(SUBCATEGORY_SYMBOL)) {
-    row.classList.add("subcategory");
-  } else {
-    row.classList.add("course");
-  }
+// give rows class names for styling and easier querying
+const applyClass = rows => {
+  rows.forEach(row => {
+    if (row.children[1].innerText !== "\n"){   // year column has value
+      row.classList.add("course");
+    } else if (row.innerText.includes(SUBJECT_SYMBOL)) {
+      row.classList.add("subject");
+    } else if (row.innerText.includes(CATEGORY_SYMBOL)) {
+      row.classList.add("category");
+    } else if (row.innerText.includes(SUBCATEGORY_SYMBOL)) {
+      row.classList.add("subcategory");
+    }
+  })
 };
 
 // True if all rows are category rows
-const onlyCategoryNames = rows => {
-  const courseResults = rows.filter(row => {
-    // all rows that are not category rows
-    return !row.innerText.split("").some(c => SYMBOLS.includes(c));
-  });
-  return courseResults.length === 0;
+const noCourses = rows => {
+  rows.filter(row => [...row.classList].includes('course')).length === 0
 };
 
 const renderResults = () => {
@@ -73,28 +71,27 @@ const renderResults = () => {
   if (tableElement.children.childElementCount !== 0) {
     tableElement.textContent = "";
   }
-  const selectedElements = [...document.querySelectorAll(".selected")];
-  const selectedCategories = selectedElements.map(el => {
+  const selectedConditions = [...document.querySelectorAll(".selected")];
+  const selectedCategories = selectedConditions.map(el => {
     return el.parentElement.parentElement.innerText.split("\n")[0];
   });
-  const filterValues = selectedElements.map(el => el.innerText);
-  const results = filter(selectedCategories, filterValues);
-  if (selectedElements.length === 0) {
+  const conditionValues = selectedConditions.map(el => el.innerText);
+  const results = filter(selectedCategories, conditionValues);
+  if (selectedConditions.length === 0) {
     tableElement.insertAdjacentHTML(
-      "beforeend",
-      `<tr><td>${INSTRUCTION_MSG}</td></tr>`
+      "beforebegin",
+      `<div class="message">${INSTRUCTION_MSG}</div>`
     );
-  } else if (onlyCategoryNames(results)) {
+  } else if (noCourses(results)) {
     // Display no results found error
     tableElement.insertAdjacentHTML(
-      "beforeend",
-      `<tr><td>${NORES_MSG}</td></tr>`
+      "beforebegin",
+      `<div class="message">${NORES_MSG}</div>`
     );
   } else {
     results.forEach(r => {
       let rowEl = r.cloneNode(true);
       rowEl.classList.remove("operationboxf");
-      applyClass(rowEl);
       tableElement.insertAdjacentElement("beforeend", rowEl);
     });
     renderStats(tableElement, results);
@@ -159,9 +156,10 @@ const optionsDict = {};
 
 const filter = (categories, filterValues) => {
   let results = [...document.querySelectorAll("tr.operationboxf")];
+  applyClass(results)
   console.log('categories', categories, 'results', results)
+  // optionNames[0] = Course
   if (categories.includes(optionNames[0])) {
-    // optionNames[0] = Course
     results = filterCourse(results, filterValues[0]);
     filterValues.shift();
     categories.shift();
@@ -186,29 +184,27 @@ const filterCourse = (rows, course) => {
   const start = rows.indexOf(matchedCourse);
   const nextCourse = rows
     .slice(start + 1)
-    .filter(r => r.innerText.includes(SUBJECT_SYMBOL))
-    .shift();
+    .filter(r => [...r.classList].includes('subject')).shift();
   const end = rows.indexOf(nextCourse);
   return rows.slice(start, end);
 };
 
 const removeEmptyCategories = rows => {
   const firstCategory = rows
-    .filter(r => r.innerText.includes(CATEGORY_SYMBOL))
+    .filter(r => [...r.classList].includes('category'))
     .shift();
   const start = rows.indexOf(firstCategory);
   const nextCategory = rows
     .slice(start + 1)
-    .filter(r => r.innerText.includes(CATEGORY_SYMBOL))
+    .filter(r => [...r.classList].includes('category'))
     .shift();
   if (!nextCategory) {
     return rows;
   }
   const end = rows.indexOf(nextCategory);
-  // Get all rows that don't have a SYMBOL
   const courses = rows
     .slice(start, end)
-    .filter(r => !SYMBOLS.some(s => r.innerText.includes(s)));
+    .filter(r => [...r.classList].includes('course'));
   if (!courses.length) {
     rows.splice(start, end - start); // remove rows with no courses
     return removeEmptyCategories(rows); // continue with remaining rows

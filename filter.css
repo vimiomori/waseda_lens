@@ -134,6 +134,11 @@ div .condition{
     margin-top: 25px;
 }
 
+.message {
+    display: inline-block;
+    padding-left: 25px;
+}
+
 /* testing classes
 
 div[class*="condition"] {
