@@ -65,10 +65,9 @@ const noCourses = rows => {
   rows.filter(row => [...row.classList].includes('course')).length === 0
 };
 
-const clearExistingResults = (table) => {
-  if (table.children.childElementCount !== 0) {
-    table.innerHTML = "";
-  }
+const clearExistingResults = () => {
+  const resultsTable = document.querySelector("#lens #results")
+  if (resultsTable) { resultsTable.remove(); }
   const instructionMsg = document.querySelector('.message');
   if (instructionMsg) { instructionMsg.remove(); }
   const stats = document.querySelector('.stats');
@@ -76,26 +75,29 @@ const clearExistingResults = (table) => {
 } 
 
 const renderResults = () => {
-  const resultsTable = document.querySelector("#lens #results");
-  clearExistingResults(resultsTable);
+  clearExistingResults();
   const selectedConditions = [...document.querySelectorAll(".selected")];
   const selectedCategories = selectedConditions.map(el => {
     return el.parentElement.parentElement.innerText.split("\n")[0];
   });
   const conditionValues = selectedConditions.map(el => el.innerText);
   const results = filter(selectedCategories, conditionValues);
+  const conditionEl = document.querySelector('.condition')
   if (selectedConditions.length === 0) {
-    resultsTable.insertAdjacentHTML(
-      "beforebegin",
+    conditionEl.insertAdjacentHTML(
+      "afterend",
       `<div class="message">${INSTRUCTION_MSG}</div>`
     );
   } else if (noCourses(results)) {
     // Display no results found error
-    resultsTable.insertAdjacentHTML(
-      "beforebegin",
+    conditionEl.insertAdjacentHTML(
+      "afterend",
       `<div class="message">${NORES_MSG}</div>`
     );
   } else {
+    const resultsTable = document.createElement('table')
+    resultsTable.id = "results"
+    document.querySelector('#lens').appendChild(resultsTable)
     results.forEach(r => {
       let rowEl = r.cloneNode(true);  // use shallow copy of original row
       rowEl.classList.remove("operationboxf");
@@ -288,12 +290,8 @@ const displayTable = () => {
     `
     <div id="lens">
       <div class="title"><i class="material-icons">photo_filter</i>Waseda Lens</div>
-        <div class="condition">
-        ${createOptions()}
-        </div>
+      <div class="condition">${createOptions()}</div>
       <div class="message">${INSTRUCTION_MSG}</div>
-      <table id="results">
-      </table>
     </div>
   `
   );
