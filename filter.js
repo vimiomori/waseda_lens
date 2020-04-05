@@ -65,12 +65,19 @@ const noCourses = rows => {
   rows.filter(row => [...row.classList].includes('course')).length === 0
 };
 
-const renderResults = () => {
-  // clear any existing results table
-  const tableElement = document.querySelector("#lens #results");
-  if (tableElement.children.childElementCount !== 0) {
-    tableElement.textContent = "";
+const clearExistingResults = (table) => {
+  if (table.children.childElementCount !== 0) {
+    table.innerHTML = "";
   }
+  const instructionMsg = document.querySelector('.message');
+  if (instructionMsg) { instructionMsg.remove(); }
+  const stats = document.querySelector('.stats');
+  if (stats) { stats.remove(); }
+} 
+
+const renderResults = () => {
+  const resultsTable = document.querySelector("#lens #results");
+  clearExistingResults(resultsTable);
   const selectedConditions = [...document.querySelectorAll(".selected")];
   const selectedCategories = selectedConditions.map(el => {
     return el.parentElement.parentElement.innerText.split("\n")[0];
@@ -78,23 +85,23 @@ const renderResults = () => {
   const conditionValues = selectedConditions.map(el => el.innerText);
   const results = filter(selectedCategories, conditionValues);
   if (selectedConditions.length === 0) {
-    tableElement.insertAdjacentHTML(
+    resultsTable.insertAdjacentHTML(
       "beforebegin",
       `<div class="message">${INSTRUCTION_MSG}</div>`
     );
   } else if (noCourses(results)) {
     // Display no results found error
-    tableElement.insertAdjacentHTML(
+    resultsTable.insertAdjacentHTML(
       "beforebegin",
       `<div class="message">${NORES_MSG}</div>`
     );
   } else {
     results.forEach(r => {
-      let rowEl = r.cloneNode(true);
+      let rowEl = r.cloneNode(true);  // use shallow copy of original row
       rowEl.classList.remove("operationboxf");
-      tableElement.insertAdjacentElement("beforeend", rowEl);
+      resultsTable.insertAdjacentElement("beforeend", rowEl);
     });
-    renderStats(tableElement, results);
+    renderStats(resultsTable, results);
   }
 };
 
@@ -284,8 +291,8 @@ const displayTable = () => {
         <div class="condition">
         ${createOptions()}
         </div>
+      <div class="message">${INSTRUCTION_MSG}</div>
       <table id="results">
-      <tr><td>${INSTRUCTION_MSG}</td></tr>
       </table>
     </div>
   `

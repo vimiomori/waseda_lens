@@ -101,6 +101,7 @@ div .condition{
 
 #results {
     margin: 40px 0 0 15px;
+    display: inline-block;
     border-collapse: collapse;
     border: 2px solid #9dd8ef;
 }
