@@ -22,7 +22,7 @@ const STATS_TITLE =
   "'s stats";
 
 
-const renderStats = (table, results) => {
+const renderStats = (results) => {
   const gradePoints = results
     .map(result => {
       // GP is the last td in a result row
@@ -34,16 +34,24 @@ const renderStats = (table, results) => {
     return;
   }
   const gpa = gradePoints.reduce((a, c) => a + c) / gradePoints.length;
-  table.insertAdjacentHTML(
-    "afterend",
+  document.querySelector('.stats').insertAdjacentHTML(
+    "beforeend",
     `
-    <div class="stats">
-      <div class="stats-title">${USER}${STATS_TITLE}</div>
-      <div class="stats-gpa">GPA: ${gpa.toFixed(2)}</div>
-    </div>
+    <div class="stats-gpa">GPA: ${gpa.toFixed(2)}</div>
     `
   );
 };
+
+const displayStats = () => {
+  document.querySelector('#lens').insertAdjacentHTML(
+    "beforeend",
+    `
+    <div class="stats">
+      <div class="stats-title">${USER}${STATS_TITLE}</div>
+    </div>
+    `
+  );
+}
 
 // give rows class names for styling and easier querying
 const applyClass = rows => {
@@ -70,7 +78,7 @@ const clearExistingResults = () => {
   if (resultsTable) { resultsTable.remove(); }
   const instructionMsg = document.querySelector('.message');
   if (instructionMsg) { instructionMsg.remove(); }
-  const stats = document.querySelector('.stats');
+  const stats = document.querySelector('.stats-gpa');
   if (stats) { stats.remove(); }
 } 
 
@@ -97,13 +105,14 @@ const renderResults = () => {
   } else {
     const resultsTable = document.createElement('table')
     resultsTable.id = "results"
-    document.querySelector('#lens').appendChild(resultsTable)
+    document.querySelector('.stats').insertAdjacentElement("beforebegin", resultsTable)
     results.forEach(r => {
       let rowEl = r.cloneNode(true);  // use shallow copy of original row
       rowEl.classList.remove("operationboxf");
+      // rowEl.classList.add("results-item");
       resultsTable.insertAdjacentElement("beforeend", rowEl);
     });
-    renderStats(resultsTable, results);
+    renderStats(results);
   }
 };
 
@@ -264,7 +273,12 @@ const selected = event => {
     });
     event.target.classList.add("selected");
   }
+  moveToStats(event.target);
   renderResults();
+};
+
+const moveToStats = (element) => {
+  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
 };
 
 const createOptions = () => {
@@ -284,7 +298,7 @@ const createOptions = () => {
   `;
 };
 
-const displayTable = () => {
+const displayLens = () => {
   document.querySelector('form[name="FRM_DETAIL"] table').insertAdjacentHTML(
     "afterend",
     `
@@ -320,7 +334,8 @@ const activate = on => {
   const detail = document.querySelector('form[name="FRM_DETAIL"] table');
   if (on) {
     addCDNs();
-    displayTable();
+    displayLens();
+    displayStats();
     [detail, ...status, ...banner].forEach(e => e.classList.add("hidden"));
     document.querySelector(".operationboxt").closest("table").classList.add("original-table")
   } else {
