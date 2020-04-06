@@ -82,7 +82,7 @@ const clearExistingResults = () => {
   if (stats) { stats.remove(); }
 } 
 
-const renderResults = () => {
+const renderResults = (clicked) => {
   clearExistingResults();
   const selectedConditions = [...document.querySelectorAll(".selected")];
   const selectedCategories = selectedConditions.map(el => {
@@ -112,6 +112,7 @@ const renderResults = () => {
       // rowEl.classList.add("results-item");
       resultsTable.insertAdjacentElement("beforeend", rowEl);
     });
+    moveToStats(clicked);
     renderStats(results);
   }
 };
@@ -175,14 +176,12 @@ const optionsDict = {};
 const filter = (categories, filterValues) => {
   let results = [...document.querySelectorAll("tr.operationboxf")];
   applyClass(results)
-  console.log('categories', categories, 'results', results)
   // optionNames[0] = Course
   if (categories.includes(optionNames[0])) {
     results = filterCourse(results, filterValues[0]);
     filterValues.shift();
     categories.shift();
   }
-  console.log('results', results)
   const conditionsDict = {};
   categories.map((category, i) => (conditionsDict[category] = filterValues[i]));
   // use for-loop to recursively filter results
@@ -190,9 +189,7 @@ const filter = (categories, filterValues) => {
     const columnIndex = optionNames.indexOf(condition);
     results = filterBy(results, columnIndex, conditionsDict[condition]);
   }
-  results.forEach(r => console.log(r))
   results = removeEmptyCategories(results);
-  console.log('results', results)
   return results;
 };
 
@@ -273,12 +270,55 @@ const selected = event => {
     });
     event.target.classList.add("selected");
   }
-  moveToStats(event.target);
-  renderResults();
+  renderResults(event.target);
 };
 
-const moveToStats = (element) => {
+const moveToStats = (oldSelected) => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+  const newSelected = oldSelected.cloneNode(true)
+  const movingSelected = oldSelected.cloneNode(true)
+  movingSelected.classList.remove('selected')
+  newSelected.classList.remove('selected')
+  movingSelected.classList.remove('hidden')
+  newSelected.classList.remove('hidden')
+  movingSelected.classList.add('moving')
+
+  const statsElement = document.querySelector('.stats')
+  statsElement.appendChild(newSelected)
+
+  const oldOffset = oldSelected.getBoundingClientRect()
+  movingSelected.style.top = oldOffset.top
+  movingSelected.style.left = oldOffset.left
+  movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
+  document.querySelector('body').appendChild(movingSelected)
+  
+  const newOffset = newSelected.getBoundingClientRect()
+  const transX = newOffset.left - oldOffset.left
+  const transY = newOffset.top - oldOffset.top
+  // newSelected.style.display = 'none'
+  console.log(newOffset.left, newOffset.top)
+  console.log(oldOffset.left, oldOffset.top)
+  movingSelected.animate(
+    [
+      {transform: 'translateX(0px) translateY(0px)'},
+      {transform: `translateX(${transX}px) translateY(${transY}px)`}
+    ],
+    500
+  )
+}
+
+const getOffset = (element) => {
+  let top = 0, left = 0;
+  do {
+      top += element.offsetTop  || 0;
+      left += element.offsetLeft || 0;
+      element = element.offsetParent;
+  } while(element);
+
+  return {
+      top: top,
+      left: left
+  };
 };
 
 const createOptions = () => {
