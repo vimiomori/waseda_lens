@@ -303,7 +303,10 @@ const moveToStats = (oldSelected) => {
       {transform: 'translateX(0px) translateY(0px)'},
       {transform: `translateX(${transX}px) translateY(${transY}px)`}
     ],
-    500
+    {
+      duration: 300,
+      easing: 'cubic-bezier(0, 0, 0.3, 1)'
+    }
   )
 }
 
