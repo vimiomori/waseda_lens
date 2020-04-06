@@ -275,12 +275,13 @@ const selected = event => {
 
 const moveToStats = (oldSelected) => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-  const newSelected = oldSelected.cloneNode(true)
+  const newSelected = oldSelected.cloneNode(true) 
   const movingSelected = oldSelected.cloneNode(true)
   movingSelected.classList.remove('selected')
   newSelected.classList.remove('selected')
   movingSelected.classList.remove('hidden')
   newSelected.classList.remove('hidden')
+  newSelected.classList.add('stats-condition-option-options-select')
   movingSelected.classList.add('moving')
 
   const statsElement = document.querySelector('.stats')
@@ -300,12 +301,12 @@ const moveToStats = (oldSelected) => {
   console.log(oldOffset.left, oldOffset.top)
   movingSelected.animate(
     [
-      {transform: 'translateX(0px) translateY(0px)'},
-      {transform: `translateX(${transX}px) translateY(${transY}px)`}
+      {transform: 'translateX(0px) translateY(0px) scale(1)'},
+      {transform: `translateX(${transX}px) translateY(${transY}px) scale(0.8)`}
     ],
     {
-      duration: 300,
-      easing: 'cubic-bezier(0, 0, 0.3, 1)'
+      duration: 400,
+      easing: 'cubic-bezier(0, 0, 0.1, 1)'
     }
   )
 }
