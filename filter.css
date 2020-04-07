@@ -166,6 +166,7 @@ div .condition{
     display: inline-block;
     padding-left: 25px;
     text-align: center;
+    transition: 0.3s;
 }
 
 /* testing classes

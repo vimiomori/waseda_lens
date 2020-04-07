@@ -275,10 +275,6 @@ const selected = event => {
     return Object.keys(SELECTED_OPTIONS).includes(cls);
   }).pop();
   SELECTED_OPTIONS[selectedType].push(event.target.innerText);
-    // hide all other options
-  [...event.target.parentElement.children].map(c => {
-    c.classList.toggle("hidden");
-  });
   renderResults(event.target);
 };
 
@@ -286,19 +282,21 @@ const moveToStats = (oldSelected) => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   const newSelected = oldSelected.cloneNode(true) 
   const movingSelected = oldSelected.cloneNode(true)
-  oldSelected.classList.remove('selected')
-  movingSelected.classList.remove('selected')
+  // oldSelected.classList.remove('selected')
+  // movingSelected.classList.remove('selected')
   // newSelected.classList.remove('selected')
   movingSelected.classList.remove('hidden')
   movingSelected.classList.add('moving')
+  newSelected.style.visibility = 'hidden'
 
   const statsElement = document.querySelector('.stats')
   statsElement.appendChild(newSelected)
 
   const oldOffset = oldSelected.getBoundingClientRect()
+  console.log(oldOffset)
   movingSelected.style.top = oldOffset.top
   movingSelected.style.left = oldOffset.left
-  movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
+  // movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
   document.querySelector('body').appendChild(movingSelected)
   
   const newOffset = newSelected.getBoundingClientRect()
@@ -317,8 +315,13 @@ const moveToStats = (oldSelected) => {
   )
   setTimeout(() => {
     movingSelected.remove()
+    newSelected.style.visibility = 'visible'
     newSelected.classList.add('stats-condition-option-options-select')
-  } , 400)
+  } , 400);
+
+  [...oldSelected.parentElement.children].map(c => {
+    c.classList.toggle("hidden");
+  });
 }
 
 const getOffset = (element) => {
@@ -400,11 +403,16 @@ const activate = on => {
 };
 
 chrome.runtime.onConnect.addListener((port) => {
-  // console.assert(port.name === "activate");
   port.onMessage.addListener((msg) => {
+    chrome.storage.local.set({
+      activated: msg.activate
+    })
     activate(msg.activate);
   });
   window.addEventListener('beforeunload', () => {
+    chrome.storage.local.set({
+      activated: false
+    })
     port.postMessage({refreshed: true})
   })
 });
