@@ -398,9 +398,15 @@ const activate = on => {
 chrome.runtime.onConnect.addListener((port) => {
   // console.assert(port.name === "activate");
   port.onMessage.addListener((msg) => {
+    chrome.storage.local.set({
+      activated: msg.activate
+    })
     activate(msg.activate);
   });
   window.addEventListener('beforeunload', () => {
+    chrome.storage.local.set({
+      activated: false
+    })
     port.postMessage({refreshed: true})
   })
 });
