@@ -21,6 +21,15 @@ const STATS_TITLE =
   "の成績概略" :
   "'s stats";
 
+const SELECTED_OPTIONS = {
+  course: [],
+  year: [],
+  term: [],
+  credit: [],
+  grade: [],
+  gradepoint: []
+};
+
 
 const renderStats = (results) => {
   const gradePoints = results
@@ -84,14 +93,9 @@ const clearExistingResults = () => {
 
 const renderResults = (clicked) => {
   clearExistingResults();
-  const selectedConditions = [...document.querySelectorAll(".selected")];
-  const selectedCategories = selectedConditions.map(el => {
-    return el.parentElement.parentElement.innerText.split("\n")[0];
-  });
-  const conditionValues = selectedConditions.map(el => el.innerText);
-  const results = filter(selectedCategories, conditionValues);
+  const results = filter();
   const conditionEl = document.querySelector('.condition')
-  if (selectedConditions.length === 0) {
+  if (!Object.values(SELECTED_OPTIONS)) {
     conditionEl.insertAdjacentHTML(
       "afterend",
       `<div class="message">${INSTRUCTION_MSG}</div>`
@@ -121,7 +125,7 @@ const makeOptions = (options, optionLabel) => {
   return `${options
     .map(
       (o, i) => `
-    <div class="condition-option-options-select hidden" id="${optionLabel}-${i}">
+    <div class="condition-option-options-select hidden ${optionLabel}" id="${optionLabel}-${i}">
       ${o}
     </div>
   `
@@ -135,7 +139,7 @@ const courseOptions = () => {
       .filter(e => /[◎\[\]]/.test(e.innerText))
       .map(e => e.innerText.replace(/[\n◎\[\]]/g, ""))
   );
-  return makeOptions([...courses], "courses");
+  return makeOptions([...courses], "course");
 };
 
 const yearOptions = () => {
@@ -145,10 +149,10 @@ const yearOptions = () => {
   const years = new Set(
     yearCol.filter(e => !(e.innerText === "\n")).map(e => e.innerText)
   );
-  return makeOptions([...years], "years");
+  return makeOptions([...years], "year");
 };
 
-const termOptions = () => makeOptions(TERMS, "terms");
+const termOptions = () => makeOptions(TERMS, "term");
 
 const creditOptions = () => makeOptions(["2", "1"], "credit");
 
@@ -173,21 +177,32 @@ const options = [
 
 const optionsDict = {};
 
-const filter = (categories, filterValues) => {
+const filter = () => {
   let results = [...document.querySelectorAll("tr.operationboxf")];
   applyClass(results)
-  // optionNames[0] = Course
-  if (categories.includes(optionNames[0])) {
-    results = filterCourse(results, filterValues[0]);
-    filterValues.shift();
-    categories.shift();
+
+  if (SELECTED_OPTIONS.course) {
+    const courseResults = []
+    SELECTED_OPTIONS.course.forEach(course => {
+      courseResults.push(...filterCourse(results, course));
+    })
+    results = courseResults
   }
-  const conditionsDict = {};
-  categories.map((category, i) => (conditionsDict[category] = filterValues[i]));
-  // use for-loop to recursively filter results
-  for (const condition in conditionsDict) {
-    const columnIndex = optionNames.indexOf(condition);
-    results = filterBy(results, columnIndex, conditionsDict[condition]);
+
+  let index = 1;
+  for (const option in SELECTED_OPTIONS) {
+    if (option === "course") { continue; }
+    else if (SELECTED_OPTIONS[option].length === 0) {
+      index++;
+      continue;
+    } else {
+      const optionResults = []
+      SELECTED_OPTIONS[option].forEach(option => {
+        optionResults.push(...filterBy(results, index, option));
+      })
+      results = optionResults
+      index++;
+    }
   }
   results = removeEmptyCategories(results);
   return results;
@@ -256,20 +271,14 @@ const showOptions = event => {
 };
 
 const selected = event => {
-  // When the same option is clicked consider it a deselect
-  if ([...event.target.classList].includes("selected")) {
-    event.target.classList.remove("selected");
-  } else {
+  const selectedType = [...event.target.classList].filter((cls) => {
+    return Object.keys(SELECTED_OPTIONS).includes(cls);
+  }).pop();
+  SELECTED_OPTIONS[selectedType].push(event.target.innerText);
     // hide all other options
-    [...event.target.parentElement.children].map(c => {
-      if ([...c.classList].includes("selected")) {
-        // hide previously selected option
-        c.classList.remove("selected");
-      }
-      c.classList.toggle("hidden");
-    });
-    event.target.classList.add("selected");
-  }
+  [...event.target.parentElement.children].map(c => {
+    c.classList.toggle("hidden");
+  });
   renderResults(event.target);
 };
 
