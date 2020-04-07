@@ -275,10 +275,6 @@ const selected = event => {
     return Object.keys(SELECTED_OPTIONS).includes(cls);
   }).pop();
   SELECTED_OPTIONS[selectedType].push(event.target.innerText);
-    // hide all other options
-  [...event.target.parentElement.children].map(c => {
-    c.classList.toggle("hidden");
-  });
   renderResults(event.target);
 };
 
@@ -296,6 +292,7 @@ const moveToStats = (oldSelected) => {
   statsElement.appendChild(newSelected)
 
   const oldOffset = oldSelected.getBoundingClientRect()
+  console.log(oldOffset)
   movingSelected.style.top = oldOffset.top
   movingSelected.style.left = oldOffset.left
   movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
@@ -314,7 +311,10 @@ const moveToStats = (oldSelected) => {
       duration: 300,
       easing: 'cubic-bezier(0, 0, 0.3, 1)'
     }
-  )
+  );
+  [...oldSelected.parentElement.children].map(c => {
+    c.classList.toggle("hidden");
+  });
 }
 
 const getOffset = (element) => {
@@ -396,7 +396,6 @@ const activate = on => {
 };
 
 chrome.runtime.onConnect.addListener((port) => {
-  // console.assert(port.name === "activate");
   port.onMessage.addListener((msg) => {
     chrome.storage.local.set({
       activated: msg.activate

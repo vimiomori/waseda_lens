@@ -9,6 +9,7 @@ const connect = () => {
       if (msg.refreshed) {
         activate.checked = false;
       }
+      connect();
     })
     port.onDisconnect.addListener(() => {
       setTimeout(() => { connect(), 500 })
