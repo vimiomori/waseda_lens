@@ -289,7 +289,6 @@ const moveToStats = (oldSelected) => {
   const oldOffset = oldSelected.getBoundingClientRect()
   movingSelected.style.top = oldOffset.top
   movingSelected.style.left = oldOffset.left
-  // movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
   document.querySelector('body').appendChild(movingSelected)
   
   const newOffset = newSelected.getBoundingClientRect()
