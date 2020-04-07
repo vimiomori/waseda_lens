@@ -97,7 +97,7 @@ div .condition{
 }
 
 .selected {
-    display: block;
+    display: inline-block;
 }
 
 .original-table {
@@ -106,7 +106,9 @@ div .condition{
 }
 
 .moving {
+    display: inline-block;
     position: absolute;
+    width: auto;
     box-shadow: 0 0 20px 2px #00000069;
     z-index: 1000;
 }
@@ -140,20 +142,22 @@ div .condition{
     display: inline-block;
     position: absolute;
     min-width: 100px;
+    max-width: 25vw;
     min-height: 100px;
     /* padding-top: 40px; */
     margin: 40px 0 15px 20px;
-    text-align: center;
+    z-index: 2;
 }
 
 .stats-title {
     padding: 5px 10px;
     font-size: 16px;
+    text-align: center;
 }
 
 .stats-condition-option-options-select {
     display: inline-block;
-    margin: 10px;
+    margin: 2px 2px 2px 0;
     transform: scale(0.8);
     transition: 0.3s;
 }
@@ -161,6 +165,7 @@ div .condition{
 .message {
     display: inline-block;
     padding-left: 25px;
+    text-align: center;
 }
 
 /* testing classes
