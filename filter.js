@@ -281,6 +281,7 @@ const moveToStats = (oldSelected) => {
   const newSelected = oldSelected.cloneNode(true)
   const movingSelected = oldSelected.cloneNode(true)
   movingSelected.classList.add('moving')
+  newSelected.style.visibility = 'hidden'
 
   const statsElement = document.querySelector('.stats')
   statsElement.appendChild(newSelected)
@@ -288,7 +289,6 @@ const moveToStats = (oldSelected) => {
   const oldOffset = oldSelected.getBoundingClientRect()
   movingSelected.style.top = oldOffset.top
   movingSelected.style.left = oldOffset.left
-  movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
   document.querySelector('body').appendChild(movingSelected)
   
   const newOffset = newSelected.getBoundingClientRect()
@@ -300,10 +300,16 @@ const moveToStats = (oldSelected) => {
       {transform: `translateX(${transX}px) translateY(${transY}px)`}
     ],
     {
-      duration: 300,
-      easing: 'cubic-bezier(0, 0, 0.3, 1)'
+      duration: 400,
+      easing: 'cubic-bezier(0, 0, 0.1, 1)'
     }
-  );
+  )
+  setTimeout(() => {
+    movingSelected.remove()
+    newSelected.style.visibility = 'visible'
+    newSelected.classList.add('stats-condition-option-options-select')
+  } , 400);
+
   [...oldSelected.parentElement.children].map(c => {
     c.classList.toggle("hidden");
   });
