@@ -257,7 +257,7 @@ const showOptions = event => {
 
 const selected = event => {
   // When the same option is clicked consider it a deselect
-  if ([...event.target.classList].includes("selected")) {
+  if ([...event.target.classList].includes()) {
     event.target.classList.remove("selected");
   } else {
     // hide all other options
