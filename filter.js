@@ -1,8 +1,8 @@
 "use strict";
 
-const JAPANESE = /[u4e00-\u9fff]/.test(
+const JAPANESE = !(/[A-Za-z]/.test(
   document.querySelector("title").innerText
-);
+));
 const SUBJECT_SYMBOL = JAPANESE ? "◎" : "[";
 const CATEGORY_SYMBOL = JAPANESE ? "【" : "{";
 const SUBCATEGORY_SYMBOL = JAPANESE ? "《" : "<";
@@ -64,6 +64,7 @@ const displayStats = () => {
 
 // give rows class names for styling and easier querying
 const applyClass = rows => {
+  console.log(JAPANESE)
   rows.forEach(row => {
     if (row.children[1].innerText !== "\n"){   // year column has value
       row.classList.add("course");
@@ -220,6 +221,7 @@ const filterCourse = (rows, course) => {
 };
 
 const removeEmptyCategories = rows => {
+  if (rows.length === 0) { return []; }
   const firstCategory = rows
     .filter(r => [...r.classList].includes('category'))
     .shift();
@@ -228,10 +230,7 @@ const removeEmptyCategories = rows => {
     .slice(start + 1)
     .filter(r => [...r.classList].includes('category'))
     .shift();
-  if (!nextCategory) {
-    return rows;
-  }
-  const end = rows.indexOf(nextCategory);
+  const end = nextCategory ? rows.indexOf(nextCategory): rows.length;
   const courses = rows
     .slice(start, end)
     .filter(r => [...r.classList].includes('course'));
@@ -279,20 +278,14 @@ const selected = event => {
 };
 
 const moveToStats = (oldSelected) => {
-  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   const newSelected = oldSelected.cloneNode(true)
   const movingSelected = oldSelected.cloneNode(true)
-  movingSelected.classList.remove('selected')
-  newSelected.classList.remove('selected')
-  movingSelected.classList.remove('hidden')
-  newSelected.classList.remove('hidden')
   movingSelected.classList.add('moving')
 
   const statsElement = document.querySelector('.stats')
   statsElement.appendChild(newSelected)
 
   const oldOffset = oldSelected.getBoundingClientRect()
-  console.log(oldOffset)
   movingSelected.style.top = oldOffset.top
   movingSelected.style.left = oldOffset.left
   movingSelected.style.width = oldOffset.right - oldOffset.left - 20 // padding
@@ -301,7 +294,6 @@ const moveToStats = (oldSelected) => {
   const newOffset = newSelected.getBoundingClientRect()
   const transX = newOffset.left - oldOffset.left
   const transY = newOffset.top - oldOffset.top
-  // newSelected.style.display = 'none'
   movingSelected.animate(
     [
       {transform: 'translateX(0px) translateY(0px)'},
@@ -316,20 +308,6 @@ const moveToStats = (oldSelected) => {
     c.classList.toggle("hidden");
   });
 }
-
-const getOffset = (element) => {
-  let top = 0, left = 0;
-  do {
-      top += element.offsetTop  || 0;
-      left += element.offsetLeft || 0;
-      element = element.offsetParent;
-  } while(element);
-
-  return {
-      top: top,
-      left: left
-  };
-};
 
 const createOptions = () => {
   optionNames.forEach((name, i) => (optionsDict[name] = options[i]));
