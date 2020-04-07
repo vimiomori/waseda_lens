@@ -296,8 +296,6 @@ const moveToStats = (oldSelected) => {
   const transX = newOffset.left - oldOffset.left
   const transY = newOffset.top - oldOffset.top
   // newSelected.style.display = 'none'
-  console.log(newOffset.left, newOffset.top)
-  console.log(oldOffset.left, oldOffset.top)
   movingSelected.animate(
     [
       {transform: 'translateX(0px) translateY(0px)'},
@@ -388,9 +386,12 @@ const activate = on => {
   }
 };
 
-const port = chrome.runtime.onConnect.addListener(function(port) {
-  console.assert(port.name === "activate");
-  port.onMessage.addListener(function(msg) {
+chrome.runtime.onConnect.addListener((port) => {
+  // console.assert(port.name === "activate");
+  port.onMessage.addListener((msg) => {
     activate(msg.activate);
   });
+  window.addEventListener('beforeunload', () => {
+    port.postMessage({refreshed: true})
+  })
 });
