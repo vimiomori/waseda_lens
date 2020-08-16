@@ -275,6 +275,7 @@ const selected = event => {
   }).pop();
   if (SELECTED_OPTIONS[selectedType].includes(event.target.innerText)) {return;}
   SELECTED_OPTIONS[selectedType].push(event.target.innerText);
+  event.target.classList.add("selected");
   renderResults(event.target);
 };
 
@@ -283,6 +284,7 @@ const moveToStats = (oldSelected) => {
   const movingSelected = oldSelected.cloneNode(true)
   movingSelected.classList.add('moving')
   newSelected.style.visibility = 'hidden'
+  newSelected.classList.remove("selected");
 
   const statsElement = document.querySelector('.stats')
   statsElement.appendChild(newSelected)

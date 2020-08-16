@@ -81,6 +81,7 @@ div .condition{
     z-index: 1;
     background-color: #025479;
     color: white;
+    cursor: pointer;
 }
 
 .condition-option-options-select:hover {
@@ -97,7 +98,8 @@ div .condition{
 }
 
 .selected {
-    display: inline-block;
+    background-color: #387ea9;
+    cursor: default;
 }
 
 .original-table {
