@@ -64,7 +64,6 @@ const displayStats = () => {
 
 // give rows class names for styling and easier querying
 const applyClass = rows => {
-  console.log(JAPANESE)
   rows.forEach(row => {
     if (row.children[1].innerText !== "\n"){   // year column has value
       row.classList.add("course");
@@ -117,7 +116,6 @@ const renderResults = (clicked) => {
       // rowEl.classList.add("results-item");
       resultsTable.insertAdjacentElement("beforeend", rowEl);
     });
-    moveToStats(clicked);
     renderStats(results);
   }
 };
@@ -126,9 +124,7 @@ const makeOptions = (options, optionLabel) => {
   return `${options
     .map(
       (o, i) => `
-    <div class="condition-option-options-select hidden ${optionLabel}" id="${optionLabel}-${i}">
-      ${o}
-    </div>
+    <div class="condition-option-options-select hidden ${optionLabel}" id="${optionLabel}-${i}">${o}</div>
   `
     )
     .join("")}`;
@@ -269,13 +265,22 @@ const showOptions = event => {
   });
 };
 
-const selected = event => {
-  const selectedType = [...event.target.classList].filter((cls) => {
+const getType = el => {
+  return [...el.classList].filter((cls) => {
     return Object.keys(SELECTED_OPTIONS).includes(cls);
   }).pop();
+}
+
+// const removeSelection = event => {
+
+// }
+
+const selected = event => {
+  const selectedType = getType(event.target)
   if (SELECTED_OPTIONS[selectedType].includes(event.target.innerText)) {return;}
   SELECTED_OPTIONS[selectedType].push(event.target.innerText);
   event.target.classList.add("selected");
+  moveToStats(event.target);
   renderResults(event.target);
 };
 
@@ -285,6 +290,7 @@ const moveToStats = (oldSelected) => {
   movingSelected.classList.add('moving')
   newSelected.style.visibility = 'hidden'
   newSelected.classList.remove("selected");
+  // newSelected.addEventListener("click", removeSelection)
 
   const statsElement = document.querySelector('.stats')
   statsElement.appendChild(newSelected)
