@@ -91,11 +91,11 @@ const clearExistingResults = () => {
   if (stats) { stats.remove(); }
 } 
 
-const renderResults = (clicked) => {
+const renderResults = () => {
   clearExistingResults();
   const results = filter();
   const conditionEl = document.querySelector('.condition')
-  if (!Object.values(SELECTED_OPTIONS)) {
+  if (Object.values(SELECTED_OPTIONS).every(o => o.length === 0)) {
     conditionEl.insertAdjacentHTML(
       "afterend",
       `<div class="message">${INSTRUCTION_MSG}</div>`
@@ -271,17 +271,21 @@ const getType = el => {
   }).pop();
 }
 
-// const removeSelection = event => {
-
-// }
+const removeSelection = event => {
+  const selectedOption = SELECTED_OPTIONS[getType(event.target)]
+  selectedOption.splice(selectedOption.indexOf(event.target.innerText), 1)
+  document.querySelector('.stats').removeChild(event.target)
+  // TODO: remove "selected" class from corresponding element in Options
+  renderResults();
+}
 
 const selected = event => {
-  const selectedType = getType(event.target)
-  if (SELECTED_OPTIONS[selectedType].includes(event.target.innerText)) {return;}
-  SELECTED_OPTIONS[selectedType].push(event.target.innerText);
+  const selectedOption = SELECTED_OPTIONS[getType(event.target)]
+  if (selectedOption.includes(event.target.innerText)) {return;}
+  selectedOption.push(event.target.innerText);
   event.target.classList.add("selected");
   moveToStats(event.target);
-  renderResults(event.target);
+  renderResults();
 };
 
 const moveToStats = (oldSelected) => {
@@ -290,7 +294,7 @@ const moveToStats = (oldSelected) => {
   movingSelected.classList.add('moving')
   newSelected.style.visibility = 'hidden'
   newSelected.classList.remove("selected");
-  // newSelected.addEventListener("click", removeSelection)
+  newSelected.addEventListener("click", removeSelection)
 
   const statsElement = document.querySelector('.stats')
   statsElement.appendChild(newSelected)
