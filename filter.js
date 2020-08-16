@@ -273,6 +273,7 @@ const selected = event => {
   const selectedType = [...event.target.classList].filter((cls) => {
     return Object.keys(SELECTED_OPTIONS).includes(cls);
   }).pop();
+  if (SELECTED_OPTIONS[selectedType].includes(event.target.innerText)) {return;}
   SELECTED_OPTIONS[selectedType].push(event.target.innerText);
   renderResults(event.target);
 };
