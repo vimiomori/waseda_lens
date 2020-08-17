@@ -124,7 +124,7 @@ const makeOptions = (options, optionLabel) => {
   return `${options
     .map(
       (o, i) => `
-    <div class="condition-option-options-select hidden ${optionLabel}" id="${optionLabel}-${i}">${o}</div>
+    <div class="condition-option-options-select hidden ${optionLabel} ${o}" id="${optionLabel}-${i}">${o}</div>
   `
     )
     .join("")}`;
@@ -275,7 +275,7 @@ const removeSelection = event => {
   const selectedOption = SELECTED_OPTIONS[getType(event.target)]
   selectedOption.splice(selectedOption.indexOf(event.target.innerText), 1)
   document.querySelector('.stats').removeChild(event.target)
-  // TODO: remove "selected" class from corresponding element in Options
+  document.querySelector(`.${event.target.innerText}`).classList.remove("selected")
   renderResults();
 }
 
