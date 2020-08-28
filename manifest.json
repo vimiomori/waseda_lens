@@ -1,6 +1,6 @@
 {
 	"name": "Waseda Lens",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Helper for viewing the waseda grade report. This is not affiliated, authorized, endorsed by, or in anyway officially connected with Waseda University. The official Waseda University website can be found at https://www.waseda.jp",
 	"manifest_version": 2,
 
