@@ -1,31 +1,40 @@
 {
-	"name": "KBPartAdder",
-	"version": "0.0.1",
-	"description": "Extension for manually inserting keyboard parts into the KBPartPicker database.",
+	"name": "Waseda Lens",
+	"version": "0.0.2",
+	"description": "Helper for viewing the waseda grade report. This is not affiliated, authorized, endorsed by, or in anyway officially connected with Waseda University. The official Waseda University website can be found at https://www.waseda.jp",
 	"manifest_version": 2,
 
-	"permissions": ["tabs", "activeTab", "declarativeContent", "storage"],
+	"permissions": ["activeTab", "declarativeContent", "storage"],
 
 	"background": {
-		"scripts": ["src/background.js"],
+		"scripts": ["background.js"],
 		"persistent": false
 	},
 
 	"content_scripts": [
 		{
-			"js": ["src/filter.js"],
-			"css": ["static/filter.css"],
-			"matches": [
-				"https://novelkeys.xyz/*"
-			],
+			"js": ["toTab.js"],
+			"matches": ["https://coursereg.waseda.jp/*"],
+			"run_at": "document_idle"
+		},
+		{
+			"js": ["filter.js"],
+			"css": ["filter.css"],
+			"matches": ["https://gradereport-ty.waseda.jp/*"],
 			"run_at": "document_idle"
 		}
 	],
 
-  "web_accessible_resources": ["src/filter.js"],
+  "web_accessible_resources": ["filter.js"],
 
 	"page_action": {
-		"default_title": "KBPartAdder",
-		"default_popup": "static/popup.html"	
+		"default_title": "Waseda Lens",
+		"default_popup": "popup.html"	
+  },
+  
+  "icons": {
+    "16": "waseda-16.png",
+    "48": "waseda-48.png",
+    "128": "waseda-128.png"
   }
 }

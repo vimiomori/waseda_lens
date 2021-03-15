@@ -1,13 +1,5 @@
-window.addEventListener('load', (event) => {
-  chrome.tabs.executeScript(null, {
-    file: 'src/filter.js', }, () => {
-      connect()
-  });
-});
-
 const activate = document.querySelector('input');
 const connect = () => {
-  console.log("popup.js connectin")
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     const port = chrome.tabs.connect(tabs[0].id, {name: "activate"});
     activate.onclick = () => {
@@ -28,5 +20,4 @@ const connect = () => {
   })
 }
 
-console.log("popup.js called")
-// connect();
+connect();
